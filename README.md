@@ -39,6 +39,6 @@ Contributions to the mission analysis project are welcome! If you have any ideas
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the MIT License. See the [license](LICENSE) file for more details.
 
 For any questions or further information, please contact the project maintainers.
