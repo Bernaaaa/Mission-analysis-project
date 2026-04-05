@@ -39,8 +39,8 @@ function [DeltaV1, DeltaV2, Deltat] = bitangentTransfer(a_i, e_i, a_f, e_f, type
             va_f = sqrt(mu)*sqrt((2/ra_f) - (1/a_f));   % Velocity at apogee of the transfer orbit
             va_t = sqrt(mu)*sqrt((2/ra_t) - (1/a_t));   % Velocity at apogee of the final orbit
 
-            DeltaV1 = vp_t - vp_i;                      % First impulse for the transfer
-            DeltaV2 = va_f - va_t;                      % Second impulse for the transfer
+            DeltaV1 = abs(vp_t - vp_i);                      % First impulse for the transfer
+            DeltaV2 = abs(va_f - va_t);                      % Second impulse for the transfer
 
         case 'ap'
             ra_t = a_i*(1+e_i);                         % Apogee radius of the transfer orbit
@@ -56,8 +56,8 @@ function [DeltaV1, DeltaV2, Deltat] = bitangentTransfer(a_i, e_i, a_f, e_f, type
             vp_f = sqrt(mu)*sqrt((2/rp_f) - (1/a_f));   % Velocity at perigee of the transfer orbit
             vp_t = sqrt(mu)*sqrt((2/rp_t) - (1/a_t));   % Velocity at perigee of the final orbit
 
-            DeltaV1 = va_t - va_i;                      % First impulse for the transfer
-            DeltaV2 = vp_f - vp_t;                      % Second impulse for the transfer
+            DeltaV1 = abs(va_t - va_i);                      % First impulse for the transfer
+            DeltaV2 = abs(vp_f - vp_t);                      % Second impulse for the transfer
 
         case 'pp'
             rp_t = a_i*(1-e_i);                         % Perigee radius of the transfer orbit
@@ -73,8 +73,8 @@ function [DeltaV1, DeltaV2, Deltat] = bitangentTransfer(a_i, e_i, a_f, e_f, type
             vp_f = sqrt(mu)*sqrt((2/rp_f) - (1/a_f));   % Velocity at perigee of the final orbit
             va_t = sqrt(mu)*sqrt((2/ra_t) - (1/a_t));   % Velocity at apogee of the transfer orbit
 
-            DeltaV1 = vp_t - vp_i;                      % First impulse for the transfer
-            DeltaV2 = vp_f - va_t;                      % Second impulse for the transfer
+            DeltaV1 = abs(vp_t - vp_i);                      % First impulse for the transfer
+            DeltaV2 = abs(vp_f - va_t);                      % Second impulse for the transfer
 
         case 'aa'
             rp_t = a_i*(1+e_i);                         % Apogee radius of the transfer orbit
@@ -90,8 +90,8 @@ function [DeltaV1, DeltaV2, Deltat] = bitangentTransfer(a_i, e_i, a_f, e_f, type
             va_f = sqrt(mu)*sqrt((2/ra_f) - (1/a_f));   % Velocity at apogee of the final orbit
             va_t = sqrt(mu)*sqrt((2/ra_t) - (1/a_t));   % Velocity at apogee of the transfer orbit
 
-            DeltaV1 = vp_t - va_i;                      % First impulse for the transfer
-            DeltaV2 = va_f - va_t;                      % Second impulse for the transfer
+            DeltaV1 = abs(vp_t - va_i);                      % First impulse for the transfer
+            DeltaV2 = abs(va_f - va_t);                      % Second impulse for the transfer
 
         otherwise
             error('Invalid transfer type. Choose from: pa, ap, pp, aa.');

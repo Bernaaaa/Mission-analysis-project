@@ -28,11 +28,11 @@ function [DeltaV, thi, thf] = changePericenterArg(a, e, omi, omf, mu)
 
     deltaO = omf - omi;                             % Change in argument of pericenter
 
-    thi(1) = deltaO/2; 
-    thi(2) = thi(1) + pi;
+    thi(1) = mod(deltaO/2, 2*pi);
+    thi(2) = mod(thi(1) + pi, 2*pi);
 
-    thf(1) = 2*pi - thi(1);
-    thf(2) = pi - thi(1);
+    thf(1) = mod(2*pi - thi(1), 2*pi);
+    thf(2) = mod(pi - thi(1), 2*pi);
 
     p = a*(1-e^2);                                  % Semi-latus rectum
 

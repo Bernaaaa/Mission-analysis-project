@@ -29,7 +29,6 @@ function [DeltaV, omf, theta] = changeOrbitalPlane(a, e, i_i, OMi, omi, i_f, OMf
     
     cos_alpha = cos(i_i)*cos(i_f) + sin(i_i)*sin(i_f)*cos(dOM);    % Law of cosines for spherical triangles
     alpha = acos(max(-1, min(1, cos_alpha)));   % Numerical safety for acos
-
     if alpha < 1e-12
         DeltaV = 0; omf = omi; theta = 0; return;
     end

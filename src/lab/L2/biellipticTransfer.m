@@ -38,9 +38,9 @@ function [DeltaV1, DeltaV2, DeltaV3, Deltat1, Deltat2] = biellipticTransfer(ai, 
     vp_t2 = sqrt(mu)*sqrt(2/rp_t2 - 1/a_t2); % Velocity at pericenter of transfer orbit 2
 
 
-    DeltaV1 = vp_t1 - vp_i; % First impulse for the transfer
-    DeltaV2 = va_t2 - va_t1; % Second impulse for the transfer
-    DeltaV3 = vp_f - vp_t2; % Third impulse for the transfer
+    DeltaV1 = abs(vp_t1 - vp_i); % First impulse for the transfer
+    DeltaV2 = abs(va_t2 - va_t1); % Second impulse for the transfer
+    DeltaV3 = abs(vp_f - vp_t2); % Third impulse for the transfer
 
     Deltat1 = pi*sqrt(a_t1^3/mu); % Time of flight for the first leg of the transfer
     Deltat2 = pi*sqrt(a_t2^3/mu); % Time of flight for the second leg of the transfer
