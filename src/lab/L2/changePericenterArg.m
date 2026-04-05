@@ -23,19 +23,19 @@ function [DeltaV, thi, thf] = changePericenterArg(a, e, omi, omf, mu)
 % - The change can be performed at two true anomalies.
 %
 
-thi = [0, 0];
-thf = [0, 0];
+    thi = [0, 0];
+    thf = [0, 0];
 
-deltaO = omf - omi;                             % Change in argument of pericenter
+    deltaO = omf - omi;                             % Change in argument of pericenter
 
-thi(1) = deltaO/2; 
-thi(2) = thi(1) + pi;
+    thi(1) = deltaO/2; 
+    thi(2) = thi(1) + pi;
 
-thf(1) = 2*pi - thi(1);
-thf(2) = pi - thi(1);
+    thf(1) = 2*pi - thi(1);
+    thf(2) = pi - thi(1);
 
-p = a*(1-e^2);                                  % Semi-latus rectum
+    p = a*(1-e^2);                                  % Semi-latus rectum
 
-DeltaV = 2*sqrt(mu/p)*e*sin(deltaO/2);          % Impulse required for the maneuver
+    DeltaV = 2*sqrt(mu/p)*e*sin(deltaO/2);          % Impulse required for the maneuver
 
 end
