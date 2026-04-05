@@ -1,9 +1,9 @@
 clear; clc; close all;
 
 % --- 1. DATI DI INPUT
-mu = 398600; a = 9500; e = 0.25; omi = deg2rad(30);
-i_i = deg2rad(75); OMi = deg2rad(30);
-i_f = deg2rad(15);  OMf = deg2rad(15.0);
+mu = 398600; a = 9500; e = 0.2; omi = deg2rad(30);
+i_i = deg2rad(15); OMi = deg2rad(60);
+i_f = deg2rad(45);  OMf = deg2rad(60.0);
 
 % --- 2. ESECUZIONE DELLA FUNZIONE ---
 [DeltaV, omf, theta] = changeOrbitalPlane(a, e, i_i, OMi, omi, i_f, OMf, mu);
@@ -95,6 +95,8 @@ h_orb_i = plot3(orb_i(1,:), orb_i(2,:), orb_i(3,:), 'Color', c_white, 'LineWidth
 h_orb_f = plot3(orb_f(1,:), orb_f(2,:), orb_f(3,:), 'Color', c_red, 'LineWidth', 1.6, ...
     'LineStyle', '-', 'DisplayName', 'TARGET PLANE LOCK'); % <--- Ora è una linea continua
 
+    
+
 % --- 6c. ECI VECTORS (Frecce e Testi Dinamici Adattivi) ---
 r_apocentro = a * (1 + e);
 axis_len = r_apocentro * 1.2; % Gli assi si allungano sempre il 20% oltre il punto più lontano dell'orbita
@@ -162,23 +164,68 @@ text(thrust_v(1), thrust_v(2), thrust_v(3)+800, ...
     'Interpreter', 'tex', 'HorizontalAlignment', 'right');
 
 
+    % --- 6i. ORBITAL DIRECTION ANALYSIS (Prograde vs Retrograde) ---
+% Calcolo momento angolare
+h_vec = cross(P_inizio, v_i); 
+is_prograde = h_vec(3) > 0; % Se la componente Z è positiva, è antioraria
+
+if is_prograde
+    rot_str = 'PROGRADE (CCW)';
+    rot_col = [0.2, 0.8, 1.0]; % Ciano
+    arc_dir = 1; % Direzione per il disegno dell'arco
+else
+    rot_str = 'RETROGRADE (CW)';
+    rot_col = [1.0, 0.4, 0.2]; % Arancio/Rosso
+    arc_dir = -1;
+end
+
+% --- DISEGNO INDICATORE DI ROTAZIONE (Ring Arrow attorno alla Terra) ---
+r_ring = R_earth * 1.3; % Raggio dell'indicatore poco sopra la superficie
+phi_ring = linspace(0, arc_dir * pi/2, 50); % Un quarto di cerchio per indicare il verso
+x_ring = r_ring * cos(phi_ring);
+y_ring = r_ring * sin(phi_ring);
+z_ring = zeros(size(phi_ring));
+
+plot3(x_ring, y_ring, z_ring, 'Color', [rot_col 0.5], 'LineWidth', 2, 'LineStyle', '--');
+
+% Freccia sulla punta dell'arco per indicare il verso
+quiver3(x_ring(end), y_ring(end), z_ring(end), ...
+    -arc_dir * y_ring(end)*0.3, arc_dir * x_ring(end)*0.3, 0, ...
+    0, 'Color', rot_col, 'LineWidth', 2, 'MaxHeadSize', 2);
+
+
+% Stampa log
+fprintf('Assetto Orbitale: %s\n', rot_str);
 
 % 6e. TELEMETRIA DINAMICA - Posizionamento dinamico del testo
 % Dati Telemetrici Estesi al Punto di Manovra
 P_text = P_inizio * 2; 
 
-% Linea di richiamo dal punto al testo
-line([P_inizio(1) P_text(1)], [P_inizio(2) P_text(2)], [P_inizio(3) P_text(3)], ...
-    'Color', [0.7 0.7 0.7 0.5], 'LineStyle', ':', 'LineWidth', 1.5);
+% --- 6e. BURN DATA HUD (Anti-Clipping & Depth Optimized) ---
+P_text = P_inizio * 2.5; % Lo allontaniamo un po' di più per dare respiro
 
-text(P_text(1), P_text(2), P_text(3), ...
+% 1. Linea di richiamo con trasparenza e ordine di profondità gestito
+line([P_inizio(1) P_text(1)], [P_inizio(2) P_text(2)], [P_inizio(3) P_text(3)], ...
+    'Color', [0.7 0.7 0.7 0.3], 'LineStyle', ':', 'LineWidth', 1.2, ...
+    'Clipping', 'on'); % Si nasconde se finisce dietro la Terra
+
+% 2. Textbox con gestione avanzata dei layer
+t_hud = text(P_text(1), P_text(2), P_text(3), ...
     {'\bf[ BURN COORD LOCK ]', ...
-     sprintf('\\rm{THETA    : %.2f deg}', theta_deg), ...
-     sprintf('\\rm{REQ DV   : %.4f km/s}', DeltaV), ...
+     sprintf('\\rm{THETA     : %.2f deg}', theta_deg), ...
+     sprintf('\\rm{REQ DV    : %.4f km/s}', DeltaV), ...
      '\color[rgb]{1.0,0.4,0.0}\bf{ATTITUDE : NOMINAL}'}, ...
     'FontName', 'Consolas', 'FontSize', 9, 'Color', 'w', ...
-    'BackgroundColor', [0.05 0.05 0.06 0.95], 'EdgeColor', [0.3 0.3 0.4], ...
-    'Interpreter', 'tex', 'HorizontalAlignment', 'left');
+    'BackgroundColor', [0.05 0.05 0.06 0.85], ... % Leggermente più trasparente
+    'EdgeColor', [0.3 0.3 0.4], ...
+    'Margin', 5, ...
+    'Interpreter', 'tex', ...
+    'HorizontalAlignment', 'left', ...
+    'VerticalAlignment', 'middle');
+
+% --- IL TRUCCO MAGICO PER IL 3D ---
+set(ax, 'SortMethod', 'depth');      % Forza MATLAB a calcolare chi sta davanti e chi dietro
+set(t_hud, 'Layer', 'back');         % Impedisce al box di "saltare" sempre in primo piano
 % --- 6e. MASTER HUD EVOLVED ---
 
 % Colori HUD
@@ -194,6 +241,7 @@ hud_str = {
     sprintf('  > ECCENTRICITY   :  %.5f', e), ...
     sprintf('  > INITIAL INC    :  %.2f deg', rad2deg(i_i)), ...
     sprintf('  > FINAL INC      :  %.2f deg', rad2deg(i_f)), ...
+    sprintf('  > ORIENTATION    :  %s', rot_str), ...
     ' ________________________________', ...
     ' ', ...
     sprintf('  > TARGET DV      :  %.4f km/s', DeltaV), ...
@@ -225,42 +273,6 @@ annotation('textbox', [0.02, 0.405, 0.05, 0.02], 'String', 'o LIVE', ...
 % --- 6f. POST-PROCESSING ---
 title('UPPER STAGE TRAJECTORY', 'Color', 'w', 'FontName', 'Helvetica', 'FontSize', 18, 'FontWeight', 'bold', 'Interpreter', 'none');
 subtitle('HIGH FIDELITY ORBIT RENDER', 'Color', [0.5 0.5 0.5], 'FontName', 'Consolas', 'Interpreter', 'none');
-
-% --- 6i. ORBITAL DIRECTION ANALYSIS (Prograde vs Retrograde) ---
-% Calcolo momento angolare
-h_vec = cross(P_inizio, v_i); 
-is_prograde = h_vec(3) > 0; % Se la componente Z è positiva, è antioraria
-
-if is_prograde
-    rot_str = 'PROGRADE (COUNTER-CLOCKWISE)';
-    rot_col = [0.2, 0.8, 1.0]; % Ciano
-    arc_dir = 1; % Direzione per il disegno dell'arco
-else
-    rot_str = 'RETROGRADE (CLOCKWISE)';
-    rot_col = [1.0, 0.4, 0.2]; % Arancio/Rosso
-    arc_dir = -1;
-end
-
-% --- DISEGNO INDICATORE DI ROTAZIONE (Ring Arrow attorno alla Terra) ---
-r_ring = R_earth * 1.3; % Raggio dell'indicatore poco sopra la superficie
-phi_ring = linspace(0, arc_dir * pi/2, 50); % Un quarto di cerchio per indicare il verso
-x_ring = r_ring * cos(phi_ring);
-y_ring = r_ring * sin(phi_ring);
-z_ring = zeros(size(phi_ring));
-
-plot3(x_ring, y_ring, z_ring, 'Color', [rot_col 0.5], 'LineWidth', 2, 'LineStyle', '--');
-
-% Freccia sulla punta dell'arco per indicare il verso
-quiver3(x_ring(end), y_ring(end), z_ring(end), ...
-    -arc_dir * y_ring(end)*0.3, arc_dir * x_ring(end)*0.3, 0, ...
-    0, 'Color', rot_col, 'LineWidth', 2, 'MaxHeadSize', 2);
-
-% Label HUD per la rotazione
-text(x_ring(end)*1.5, y_ring(end)*1.5, 0, rot_str, ...
-    'Color', rot_col, 'FontName', 'Consolas', 'FontSize', 9, 'FontWeight', 'bold');
-
-% Stampa log
-fprintf('Assetto Orbitale: %s\n', rot_str);
 
 % --- 6g. MASTER HUD LEGENDA ---
 lgd = legend([h_orb_i, h_orb_f], ...
@@ -297,4 +309,7 @@ lighting gouraud;
 material dull; 
 set(gcf, 'GraphicsSmoothing', 'on', 'InvertHardcopy', 'off');
 set(ax, 'SortMethod', 'depth');
+
+
+
 
