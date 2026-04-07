@@ -199,9 +199,6 @@ fprintf('Assetto Orbitale: %s\n', rot_str);
 
 % 6e. TELEMETRIA DINAMICA - Posizionamento dinamico del testo
 % Dati Telemetrici Estesi al Punto di Manovra
-P_text = P_inizio * 2; 
-
-% --- 6e. BURN DATA HUD (Anti-Clipping & Depth Optimized) ---
 P_text = P_inizio * 2.5; % Lo allontaniamo un po' di più per dare respiro
 
 % 1. Linea di richiamo con trasparenza e ordine di profondità gestito
