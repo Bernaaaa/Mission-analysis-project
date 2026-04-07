@@ -1,9 +1,9 @@
 clear; clc; close all;
 
 % --- 1. DATI DI INPUT
-mu = 398600; a = 9500; e = 0.2; omi = deg2rad(30);
-i_i = deg2rad(15); OMi = deg2rad(60);
-i_f = deg2rad(45);  OMf = deg2rad(60.0);
+mu = 398600; a = 10000; e = 0.3; omi = deg2rad(310);
+i_i = deg2rad(45); OMi = deg2rad(10);
+i_f = deg2rad(25);  OMf = deg2rad(55.0);
 
 % --- 2. ESECUZIONE DELLA FUNZIONE ---
 [DeltaV, omf, theta] = changeOrbitalPlane(a, e, i_i, OMi, omi, i_f, OMf, mu);
@@ -84,9 +84,7 @@ c_white = [1 1 1];       % White Core
 c_red   = [1 0.05 0.05]; % Crimson Red
 
 % --- RENDERING ORBITA INIZIALE (NEON WHITE) ---
-% Layer 1: Bloom esterno
-plot3(orb_i(1,:), orb_i(2,:), orb_i(3,:), 'Color', [c_white 0.04], 'LineWidth', 18, 'HandleVisibility', 'off');
-% Layer 2: Core continuo
+% Layer 1: Core continuo
 h_orb_i = plot3(orb_i(1,:), orb_i(2,:), orb_i(3,:), 'Color', c_white, 'LineWidth', 1.4, ...
     'LineStyle', '-', 'DisplayName', 'INITIAL ORBIT STABLE');
 
@@ -290,23 +288,67 @@ lgd.Title.FontSize = 8;
 grid off; 
 drawnow;
 
-% --- 7. AUTO-ZOOM & CAMERA SETUP ---
+% --- 7. AUTO-ZOOM, CAMERA SETUP & INTERACTIVITY UNLOCK ---
 r_apocentro = a * (1 + e);
-view_limit = r_apocentro * 1.15; % Margine del 15% oltre il punto più lontano
+view_limit = r_apocentro * 1.15;
 
 xlim([-view_limit, view_limit]);
 ylim([-view_limit, view_limit]);
 zlim([-view_limit, view_limit]);
 
 set(ax, 'Projection', 'perspective');
+axis vis3d; % impedisce all'orbita di "schiacciarsi" mentre ruoti
+
+% SBLOCCO ROTAZIONE AUTOMATICA: Permette di usare il mouse anche durante il loop
+h_rot = rotate3d(ax);
+set(h_rot, 'Enable', 'on'); 
 
 % Lighting
 camlight('headlight');
 lighting gouraud;
 material dull; 
 set(gcf, 'GraphicsSmoothing', 'on', 'InvertHardcopy', 'off');
-set(ax, 'SortMethod', 'depth');
+
+% =========================================================================
+% --- 8. KEPLERIAN LIVE TRACKING (Real Physics Velocity) ---
+% =========================================================================
+
+% Parametri temporali
+t_sim = 0;              % Tempo iniziale
+dt = 10;                % Passo temporale in secondi 
+n = sqrt(mu / a^3);     % Moto medio (rad/s)
+
+% Oggetti Grafici
+h_aura  = plot3(NaN, NaN, NaN, 'o', 'Color', [0.0 0.4 1.0], 'MarkerSize', 10, 'LineWidth', 1.5, 'HandleVisibility', 'off');
+h_core  = plot3(NaN, NaN, NaN, 'wo', 'MarkerFaceColor', 'w', 'MarkerSize', 4, 'DisplayName', 'ACTIVE ASSET');
+h_sat_label = text(NaN, NaN, NaN, '  SAT-1 [LIVE]', 'Color', [0 1 1], ...
+    'FontName', 'Consolas', 'FontSize', 8, 'FontWeight', 'bold', 'Interpreter', 'none');
 
 
-
-
+while ishandle(fig)
+    % 1. Calcolo Anomalia Media
+    M = n * t_sim;
+    
+    % 2. Risoluzione Equazione di Keplero (M = E - e*sin(E)) per trovare E
+    E = M; % Guess iniziale
+    for k = 1:5 % Newton-Raphson veloce
+        E = E - (E - e*sin(E) - M) / (1 - e*cos(E));
+    end
+    
+    % 3. Calcolo Anomalia Vera (theta reale fisico)
+    th_real = 2 * atan(sqrt((1+e)/(1-e)) * tan(E/2));
+    
+    % 4. Calcolo posizione esatta nel tempo
+    P_curr = getPos(i_i, OMi, omi, th_real);
+    
+    
+    % 6. Update Grafico
+    set(h_core, 'XData', P_curr(1), 'YData', P_curr(2), 'ZData', P_curr(3));
+    set(h_aura, 'XData', P_curr(1), 'YData', P_curr(2), 'ZData', P_curr(3));
+    set(h_sat_label, 'Position', [P_curr(1)*1.05, P_curr(2)*1.05, P_curr(3)*1.05]);
+    
+    % 7. Incremento tempo e rendering
+    t_sim = t_sim + dt;
+    drawnow limitrate;
+    pause(0.01); 
+end
