@@ -24,10 +24,10 @@ if e >=1 || e <= 0
     error('Eccentricity must be in the range [0, 1) for elliptical orbits.');
 end
 
-E1 = 2 * atan( sqrt((1-e)/(1+e)) * tan(th1 /2) );   % Eccentric anomaly at th1
-E2 = 2 * atan( sqrt((1-e)/(1+e)) * tan(th2 /2) );   % Eccentric anomaly at th2
+E1 = 2 * atan2( sqrt((1-e)/(1+e)) * tan(th1 /2) );   % Eccentric anomaly at th1
+E2 = 2 * atan2( sqrt((1-e)/(1+e)) * tan(th2 /2) );   % Eccentric anomaly at th2
 
-deltat = sqrt(a^3 / mu) * (E2 - E1 - e * (sin(E2) - sin(E1)));  % Time of fligh
+deltat = sqrt(a^3 / mu) * (E2 - E1 - e * (sin(E2) - sin(E1)));  % Time of flight
 
 if th2 < th1   
     T = 2 * pi * sqrt(a^3 / mu);  % Orbital period  
