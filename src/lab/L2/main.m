@@ -8,7 +8,7 @@ i_f = deg2rad(25);  OMf = deg2rad(55.0);
 % --- 2. ESECUZIONE DELLA FUNZIONE ---
 [DeltaV, omf, theta] = changeOrbitalPlane(a, e, i_i, OMi, omi, i_f, OMf, mu);
 
-% --- 3. NORMALIZZAZIONE PER IL TEST ---
+% --- 3. NORMALIZZAZIONE PER IL TEST ---fffddddd
 theta_deg = mod(rad2deg(theta), 360);
 omf_deg   = mod(rad2deg(omf), 360);
 theta_rad = deg2rad(theta_deg);
