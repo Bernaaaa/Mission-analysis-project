@@ -1,8 +1,7 @@
-clear; clc; close all;
 
 % --- 1. DATI DI INPUT
 mu = 398600; a = 12000; e = 0.2; omi = deg2rad(310);
-i_i = deg2rad(45); OMi = deg2rad(10);
+i_i = deg2rad(45); OMi = deg2rad(80);
 i_f = deg2rad(25);  OMf = deg2rad(55.0);
 
 % --- 2. ESECUZIONE DELLA FUNZIONE ---
