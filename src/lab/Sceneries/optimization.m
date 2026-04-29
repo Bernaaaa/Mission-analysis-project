@@ -46,7 +46,7 @@ DV = zeros(size(E));
 DT = zeros(size(E));
 
 
-count = 0;
+
 for k = 1:numel(E)
 
     % Extract the test eccentricity and apogee radius for the current iteration
@@ -59,7 +59,6 @@ for k = 1:numel(E)
     if rp_test < 6371 + 400
         DV(k) = NaN; % Mark as invalid
         DT(k) = NaN; % Mark as invalid
-        count = count + 1;
         continue;
     end
 
@@ -114,7 +113,7 @@ if sum(isnan(DT_flat)) + sum(isnan(DV_flat)) > 0
 end
 
 % Fit a polynomial surface to the valid data points (e.g., using poly11 for a simple linear fit or poly23 for a more complex fit)
-ft_DT= fit([E_flat, RA_flat], DT_flat, 'poly11');
+ft_DT= fit([E_flat, RA_flat], DT_flat, 'poly12');
 ft_DV = fit([E_flat, RA_flat], DV_flat, 'poly23');
 
 % Reshape t_val back onto the full 2D grid
