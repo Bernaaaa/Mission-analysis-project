@@ -89,13 +89,13 @@ for k = 1:numel(E)
 end
 
 % Visualize the results for Delta V as function of eccentricity and apogee radius
-plotter(E, RA, DV, 'Delta V as function of eccentricity and apogee radius')
+plotter(E, RA, DV, 'Delta V as function of eccentricity and apogee radius', 'Eccentricity', 'Apogee Radius (km)', 'Delta V (km/s)')
 
 %Visualize the results for Time of Flight as function of eccentricity and apogee radius
-plotter(E, RA, DT, 'Time of Flight as function of eccentricity and apogee radius')
+plotter(E, RA, DT, 'Time of Flight as function of eccentricity and apogee radius', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
 
 % Visualize the results for Time of Flight as function of eccentricity and apogee radius with logarithmic scale
-plotter(E, RA, log10(DT), 'Logarithmic Time of Flight as function of eccentricity and apogee radius')
+plotter(E, RA, log10(DT), 'Logarithmic Time of Flight as function of eccentricity and apogee radius', 'Eccentricity', 'Apogee Radius (km)', 'Log10(Time of Flight)')
 
 % reshape into arrays
 E_flat = E(:);
@@ -121,7 +121,7 @@ DT_poly_grid = reshape(ft_DT(E(:), RA(:)), size(E));
 DV_poly_grid = reshape(ft_DV(E(:), RA(:)), size(E));
 
 % Visualize the fitted polynomial surface for Time of Flight
-plotter(E, RA, DT_poly_grid, 'Fitted Polynomial(poly12) Time of Flight Surface')
+plotter(E, RA, DT_poly_grid, 'Fitted Polynomial(poly12) Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
 
 % Fit a scatteredInterpolant spline surface to the valid data points (natural neighbor interpolation)
 F_DT = scatteredInterpolant(E_flat, RA_flat, DT_flat, 'natural', 'none');
@@ -132,14 +132,14 @@ DT_spline2 = F_DT(E, RA);
 DV_spline2 = F_DV(E, RA);
 
 % Visualize the scatteredInterpolant surface for Time of Flight
-plotter(E, RA, DT_spline2, 'ScatteredInterpolant (natural) Time of Flight Surface')
+plotter(E, RA, DT_spline2, 'ScatteredInterpolant (natural) Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
 
 % cubic interpolation (this will also return NaN for points outside the convex hull of valid data)
 DT_spline = griddata(E_flat, RA_flat, DT_flat, E, RA, 'cubic');
 DV_spline = griddata(E_flat, RA_flat, DV_flat, E, RA, 'cubic');
 
 % Visualize the cubic interpolated surface for Time of Flight
-plotter(E, RA, DT_spline, 'Cubic Interpolated Time of Flight Surface')
+plotter(E, RA, DT_spline, 'Cubic Interpolated Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
 % calculate metrics for each model (RMSE and R²)
 
 % Metrics for Time of Flight
@@ -247,7 +247,7 @@ fprintf('DT_opt_ms : %.2f s (%.2f ore)\n', DT_opt_ms, DT_opt_ms/3600)
 fprintf('DV_opt_ms : %.4f km/s\n',   DV_opt_ms)
 
 % Plot the combined objective function surface
-plotter(E, RA, obj(E, RA), sprintf('Funzione obiettivo combinata (w = %.2f)', w))
+plotter(E, RA, obj(E, RA), sprintf('Funzione obiettivo combinata (w = %.2f)', w), 'Eccentricity', 'Apogee Radius (km)', 'Funzione obiettivo')
 hold on
 plot3(e_opt_ms, ra_opt_ms, ft_opt_ms, 'ro', 'MarkerSize', 12, 'MarkerFaceColor', 'r')
 xlabel('e'); ylabel('r_a (km)'); zlabel('Funzione obiettivo')
