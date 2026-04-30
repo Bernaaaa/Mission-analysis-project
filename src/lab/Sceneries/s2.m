@@ -19,6 +19,33 @@ clc
 
 % 1) Definizione del vettore di stato (posizione e velocità) nei punti 1 e 2:
 
+%26 3908 Nyx (1980 PA)
+%Dati iniziali
+r_xi = -7090.590200;
+r_yi = -5612.557300;
+r_zi = 3948.902900;
+v_xi = 5.698000;
+v_yi = -5.995000;
+v_zi = 1.710000;
+
+ri = [r_xi; r_yi; r_zi];
+vi = [v_xi; v_yi; v_zi];
+
+%Dati finali 
+a_f = 1.927925;
+e_f = 0.459072;
+i_f = 2.19 ;
+OM_f = 261.19 ;
+om_f = 126.66 ;
+mass = 1.0472E+12 ;
+D = 1.00;
+
+
+
+
+[a_f, e_f, i_f, OM_f, om_f, th_f] = car2par(rf, vf, mu);
+
+
 [r1i, v1i] = par2car(a_i, e_i, i_i, OM_i, om_i, th_i, mu)
 
 [r1f, v1f] = par2car(a_f, e_f, i_f, OM_f, om_f, th_f, mu)
@@ -80,7 +107,7 @@ theta_1t = atan2(si_1tn, co_1tn);
 
 co_2tn = r2_pf(1)/norm(r2_pf);
 si_2tn = r2_pf(2)/norm(r2_pf);
-theta_2t = atan2(si_2tn, co_2tn);   
+theta_2t = atan2(si_2tn, co_2tn);  
 
 
 
