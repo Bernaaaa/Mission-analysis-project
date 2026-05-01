@@ -2,51 +2,58 @@ clear
 clc
 close all
 
-% Define constants and initial conditions
-mu = 398600.4418;
+% N.B. Comment all print statments inside sub functions to avoid cluttering the output during optimization runs !!
 
-% Initial orbital parameters of the orbit
-a = 24400.00;
-e = 0.728300;
-i = 0.104700;
-OM = 2.361000;
-om = 3.107000;
-th = 2.135000;
+% PHISICAL CONSTANTS
+mu = 398600.4418; % Earth's gravitational parameter in km^3/s^2
+R_earth = 6371; % Earth's radius in km
+Lunar_SOI = 384400; % Distance to the Moon in km
 
-% Final orbital parameters of the orbit
-r_xf = -7090.590200;
-r_yf = -5612.557300;
-r_zf = 3948.902900;
-v_xf = 5.698000;
-v_yf = -5.995000;
-v_zf = 1.710000;
+
+% INITIAL ORBITAL PARAMETERS
+a = 24400.00; % semi-major axis in km
+e = 0.728300; % eccentricity
+i = 0.104700; % inclination in radians
+OM = 2.361000; % longitude of ascending node in radians
+om = 3.107000; % argument of perigee in radians
+th = 2.135000; % true anomaly in radians
+
+% FINAL ORBITAL PARAMETERS (derived from final position and velocity)
+r_xf = -7090.590200; % final position in km
+r_yf = -5612.557300; % final position in km
+r_zf = 3948.902900; % final position in km
+v_xf = 5.698000; % final velocity in km/s
+v_yf = -5.995000; % final velocity in km/s
+v_zf = 1.710000; % final velocity in km/s
 
 % Convert final position and velocity to orbital elements
-rf = [r_xf; r_yf; r_zf];
-vf = [v_xf; v_yf; v_zf];
+rf = [r_xf; r_yf; r_zf]; % final position vector in km
+vf = [v_xf; v_yf; v_zf]; % final velocity vector in km/s
 
-% Convert initial Cartesian coordinates to orbital elements
+% Convert final position and velocity to orbital elements of the final orbit
 [a_f, e_f, i_f, OM_f, om_f, th_f] = car2par(rf, vf, mu);
 
 % Define the search space for optimization
 e_min = 0.01; % Minimum eccentricity
 e_max = 0.9;  % Maximum eccentricity
-rp_min = 6371 + 400; % Minimum perigee radius in km (Earth's radius + 400 km atmospheric buffer)
+
+rp_min = R_earth + 400; % Minimum perigee radius in km (Earth's radius + 400 km atmospheric buffer)
+
 ra_min = rp_min * (1 + e_max) / (1 - e_max); % Minimum apogee radius in km
-ra_max = 350000; % Maximum apogee radius in km
+ra_max = Lunar_SOI - 400; % Maximum apogee radius in km (Lunar distance minus a buffer to stay within Earth's sphere of influence)
 
 % Create a grid of eccentricity and apogee radius values
 e_vec = linspace(e_min, e_max, 100);
 ra_vec = linspace(ra_min, ra_max, 100);
 
+% Create a meshgrid for the optimization variables
 [E, RA] = meshgrid(e_vec, ra_vec);
 
 % Initialize matrices to store results
 DV = zeros(size(E));
 DT = zeros(size(E));
 
-
-
+% Loop through each combination of eccentricity and apogee radius to calculate the total delta-V and time of flight for the transfer
 for k = 1:numel(E)
 
     % Extract the test eccentricity and apogee radius for the current iteration
@@ -55,38 +62,55 @@ for k = 1:numel(E)
     a_test = ra_test / (1 + e_test);
     rp_test = a_test * (1 - e_test);
 
-    %check if the perigee of the transfer orbit is above the Earth's atmosphere (assumed to be 200 km above Earth's surface, so 6578 km from Earth's center)
-    if rp_test < 6371 + 400
-        DV(k) = NaN; % Mark as invalid
-        DT(k) = NaN; % Mark as invalid
-        continue;
+    if rp_test < rp_min || ra_test > ra_max
+        DV(k) = NaN; % Mark as invalid if perigee is too low or apogee is too high
+        DT(k) = NaN; % Mark as invalid if perigee is too low or apogee is too high
+        continue
     end
 
     %bitangent transfer from initial orbit to transfer orbit at perigee
     [DV1a, DV1b, Delta_t_bt1] = bitangentTransfer(a, e, a_test, e_test, 'pa', mu);
-    Delta_T1 = TOF_M(a, e, th, 0, mu); % Time from initial orbit to apogee of transfer orbit
+
+    % Time from initial anomaly to perigee of transfer orbit (since it's a bitangent transfer, we can directly use the time from the bitangent transfer function)
+    Delta_T1 = Delta_t_bt1; 
+
+    % Time from initial anomaly to perigee
+    Delta_T2 = TOF_M(a, e, th, 0, mu); % Time from initial orbit to apogee of transfer orbit
 
     % Plane change at apogee of transfer orbit
     [DVP, om_p, theta_plane_blt] = changeOrbitalPlane(a_test, e_test, i, OM, om, i_f, OM_f, mu);
-    Delta_T2 = TOF_M(a_test, e_test, pi, theta_plane_blt, mu);
+
+    % Time from apogee of transfer orbit to plane change point )
+    Delta_T3 = TOF_M(a_test, e_test, pi, theta_plane_blt, mu);
 
     % Change of argument of pericenter at apogee of transfer orbit
     [DVom, thi_omega_blt, thf_omega_blt] = changePericenterArg(a_test, e_test, om_p, om_f, mu);
-    Delta_T3 = TOF_M(a_test, e_test, theta_plane_blt, thi_omega_blt(1), mu); % Time from plane change point to pericenter argument change point
-    Delta_T4 = TOF_M(a_test, e_test, thf_omega_blt(1), pi, mu); % Time from pericenter argument change point to final orbit
+
+    % time from plane change point to pericenter argument change point
+    Delta_T4 = TOF_M(a_test, e_test, theta_plane_blt, thi_omega_blt(1), mu);
+
+    % time from pericenter argument change point to apogee (start of bitangent transfer to final orbit)
+    Delta_T5 = TOF_M(a_test, e_test, thf_omega_blt(1), pi, mu); 
 
     %bitangent transfer from transfer orbit to final orbit at apogee
     [DV2a, DV2b, Delta_t_bt2] = bitangentTransfer(a_test, e_test, a_f, e_f, 'ap', mu);
-    Delta_T5 = TOF_M(a_f, e_f, 0, th_f, mu); % Time from pericenter argument change point to final orbit 
+
+    %time from apogee of transfer orbit to perigee of final orbit (since it's a bitangent transfer, we can directly use the time from the bitangent transfer function)
+    Delta_T6 = Delta_t_bt2;
+
+    %time from perigee of final orbit to final anomaly
+    Delta_T7 = TOF_M(a_f, e_f, 0, th_f, mu);  
     
     % Total delta-V for the transfer
     DV_tot = abs(DV1a) + abs(DV1b) + abs(DVP) + abs(DVom) + abs(DV2a) + abs(DV2b);
     DV(k) = DV_tot;
 
     % Total time of flight for the transfer
-    DT_tot = Delta_T1 + Delta_T2 + Delta_T3 + Delta_T4 + Delta_T5 + Delta_t_bt1 + Delta_t_bt2;
+    DT_tot = Delta_T1 + Delta_T2 + Delta_T3 + Delta_T4 + Delta_T5 + Delta_T6 + Delta_T7;
     DT(k) = DT_tot;
 end
+
+%% VISUALIZATION OF THE DATA SET
 
 % Visualize the results for Delta V as function of eccentricity and apogee radius
 plotter(E, RA, DV, 'Delta V as function of eccentricity and apogee radius', 'Eccentricity', 'Apogee Radius (km)', 'Delta V (km/s)')
@@ -97,13 +121,15 @@ plotter(E, RA, DT, 'Time of Flight as function of eccentricity and apogee radius
 % Visualize the results for Time of Flight as function of eccentricity and apogee radius with logarithmic scale
 plotter(E, RA, log10(DT), 'Logarithmic Time of Flight as function of eccentricity and apogee radius', 'Eccentricity', 'Apogee Radius (km)', 'Log10(Time of Flight)')
 
+%% ARRANGE DATA FOR MODEL FITTING
+
 % reshape into arrays
 E_flat = E(:);
 RA_flat = RA(:);
 DT_flat =DT(:); 
 DV_flat = DV(:);
 
-% Check if all invalid points are due to perigee being below the atmospheric threshold
+% check for Nan values in the data (if any) and handle them before fitting the models
 if sum(isnan(DT_flat)) + sum(isnan(DV_flat)) > 0
     valid = ~isnan(DT_flat) & ~isnan(DV_flat);
     E_flat = E_flat(valid);
@@ -112,35 +138,48 @@ if sum(isnan(DT_flat)) + sum(isnan(DV_flat)) > 0
     DV_flat = DV_flat(valid);
 end
 
-% Fit a polynomial surface to the valid data points (e.g., using poly11 for a simple linear fit or poly23 for a more complex fit)
-ft_DT= fit([E_flat, RA_flat], DT_flat, 'poly12');
-ft_DV = fit([E_flat, RA_flat], DV_flat, 'poly23');
+%% MODEL FITTING
 
+%POLYNOMIAL FITTING
+% Fit a polynomial surface to the valid data points
+ft_DT= fit([E_flat, RA_flat], DT_flat, 'poly12'); % 'poly12' means a polynomial of degree 1 in E and degree 2 in RA (total degree 3)
+ft_DV = fit([E_flat, RA_flat], DV_flat, 'poly23'); % 'poly23' means a polynomial of degree 2 in E and degree 3 in RA (total degree 5)
+
+% VISUALIZATION OF POLYNOMIAL FITTING
 % Reshape t_val back onto the full 2D grid
 DT_poly_grid = reshape(ft_DT(E(:), RA(:)), size(E));
 DV_poly_grid = reshape(ft_DV(E(:), RA(:)), size(E));
 
 % Visualize the fitted polynomial surface for Time of Flight
 plotter(E, RA, DT_poly_grid, 'Fitted Polynomial(poly12) Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
+plotter(E, RA, DV_poly_grid, 'Fitted Polynomial(poly23) Delta V Surface', 'Eccentricity', 'Apogee Radius (km)', 'Delta V (km/s)')
 
-% Fit a scatteredInterpolant spline surface to the valid data points (natural neighbor interpolation)
+% SPLINE FITTING
+% Fit a scatteredInterpolant spline
 F_DT = scatteredInterpolant(E_flat, RA_flat, DT_flat, 'natural', 'none');
 F_DV = scatteredInterpolant(E_flat, RA_flat, DV_flat, 'natural', 'none');
 
+% VISUALIZATION OF SCATTERED INTERPOLANT SPLINE FITTING
 % Evaluate the spline at the grid points
 DT_spline2 = F_DT(E, RA);
 DV_spline2 = F_DV(E, RA);
 
 % Visualize the scatteredInterpolant surface for Time of Flight
 plotter(E, RA, DT_spline2, 'ScatteredInterpolant (natural) Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
+plotter(E, RA, DV_spline2, 'ScatteredInterpolant (natural) Delta V Surface', 'Eccentricity', 'Apogee Radius (km)', 'Delta V (km/s)')
 
+% CUBIC SPLINE FITTING
 % cubic interpolation (this will also return NaN for points outside the convex hull of valid data)
 DT_spline = griddata(E_flat, RA_flat, DT_flat, E, RA, 'cubic');
 DV_spline = griddata(E_flat, RA_flat, DV_flat, E, RA, 'cubic');
 
+%VISUALIZATION OF CUBIC SPLINE FITTING
 % Visualize the cubic interpolated surface for Time of Flight
 plotter(E, RA, DT_spline, 'Cubic Interpolated Time of Flight Surface', 'Eccentricity', 'Apogee Radius (km)', 'Time of Flight (s)')
+plotter(E, RA, DV_spline, 'Cubic Interpolated Delta V Surface', 'Eccentricity', 'Apogee Radius (km)', 'Delta V (km/s)')
 % calculate metrics for each model (RMSE and R²)
+
+%% MODEL EVALUATION
 
 % Metrics for Time of Flight
 [rmse_DT_poly,   r2_DT_poly]   = model_metrics(DT_poly_grid, DT);
@@ -165,6 +204,8 @@ fprintf('%-20s %10.4f %10.6f\n', 'DV  poly31',  rmse_DV_poly,    r2_DV_poly);
 fprintf('%-20s %10.4f %10.6f\n', 'DV  spline',  rmse_DV_spline,  r2_DV_spline);
 fprintf('%-20s %10.4f %10.6f\n', 'DV  spline2', rmse_DV_spline2, r2_DV_spline2);
 
+%% OPTIMIZATION
+
 
 % normlizated weighted optimization
 % obj = (1 - w) * F_DT + w * F_DV
@@ -178,16 +219,13 @@ w = 0.5;
 DT_ref = mean(DT_flat); 
 DV_ref = mean(DV_flat);
 
-
+%OBJECTIVE FUNCTION FOR OPTIMIZATION
 % combined objective function (normalized and weighted)
 obj = @(e, ra) (1 - w) * F_DT(e, ra) ./ DT_ref + ...
         w  * F_DV(e, ra) ./ DV_ref;
 
-
-
 % Define the objective function for optimization (wrap the combined objective in a function that takes a vector input)
 obj_vec = @(x) obj(x(1), x(2));
-
 
 % Set bounds for optimization
 lb = [min(E_flat),  min(RA_flat)];
