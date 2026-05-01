@@ -2,6 +2,16 @@ clear
 clc
 close all
 
+% INPUT: 
+ % Parametri orbitali iniziali [𝑎𝑖, 𝑒𝑖, 𝑖𝑖, Ω𝑖, 𝜔𝑖 ]
+ % Parametri orbitali finali [𝑎𝑓, 𝑒𝑓, 𝑖𝑓, Ω𝑓, 𝜔𝑓 ]
+
+% OUTPUT:
+ % - Modelli per stimare il tempo di volo (DT) e il delta-V (DV) in funzione dei parametri dell’orbita di trasferimento (eccentricità e raggio d’apogeo)
+ % - Soluzione ottima (e, r_a) che minimizza una funzione obiettivo
+ % - Analisi di sensitività della soluzione ottima rispetto a variazioni nei pesi della funzione obiettivo e nei parametri del modello (ANOPTE: this part is still in progress, will be added in the next iterations)
+
+ 
 % N.B. Comment all print statments inside sub functions to avoid cluttering the output during optimization runs !!
 
 % PHISICAL CONSTANTS
@@ -204,7 +214,7 @@ fprintf('%-20s %10.4f %10.6f\n', 'DV  poly31',  rmse_DV_poly,    r2_DV_poly);
 fprintf('%-20s %10.4f %10.6f\n', 'DV  spline',  rmse_DV_spline,  r2_DV_spline);
 fprintf('%-20s %10.4f %10.6f\n', 'DV  spline2', rmse_DV_spline2, r2_DV_spline2);
 
-%% OPTIMIZATION
+%% OPTIMIZATION (still testing ...)
 
 
 % normlizated weighted optimization
