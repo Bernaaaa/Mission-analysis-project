@@ -35,7 +35,7 @@ fprintf('Final parameters\n af = %.2f\n ef = %.6f\n if = %.6f\n OMf = %.6f\n omf
 fprintf('\n--- STRATEGY 2: Bielliptic Transfer + Plane Change at Apogee ---\n');
 
 
-ra_range = linspace(50000, 350000, 500);
+ra_range = linspace(50000, 315000, 500);
 e_range = linspace(0.01, 0.95, 500);      
 
 best_dv = inf;

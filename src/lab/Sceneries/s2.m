@@ -64,7 +64,7 @@ DV = zeros(length(om_tn), length(th_f_val), length(th_i_val));
 
 %Loop for the variation of the parameters of the transfer orbit:
 for j=1:length(om_tn)
-    om_tn = om_tn(j);
+    om_t = om_tn(j);
 
     % Loop for the variation of the true anomaly of the initial orbit:
     for k =1:length(th_i_val)
