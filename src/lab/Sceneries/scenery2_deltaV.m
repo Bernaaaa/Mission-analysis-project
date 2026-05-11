@@ -140,3 +140,22 @@ fprintf('   Delta-V Arrivo:       %8.4f km/s\n', norm(v_nyx_opt - v2t));
 fprintf('%s\n', separator);
 
 
+%% 8. PLOTTING: MISSION GEOMETRY AND ORBITS
+
+% Struct for Earth data
+Earth.a = a_i; Earth.e = e_i; Earth.i = i_i; 
+Earth.OM = OM_i; Earth.om = om_i; Earth.mu = mu;
+
+% Struct for Nyx data
+Nyx.a = a_f; Nyx.e = e_f; Nyx.i = i_f; 
+Nyx.OM = OM_f; Nyx.om = om_f; Nyx.mu = mu;
+
+% Struct for Transfer data
+Trans.a = a_t; Trans.e = e_t; Trans.i = i_t_opt;
+Trans.OM = OM_t_opt; Trans.om = om_tn_opt; Trans.mu = mu;
+
+% Struct for Constants
+Const.AU = AU; Const.r1_opt = r1_opt; Const.r2_opt = r2_opt;
+Const.th_i_t = th_i_t; Const.th_f_t = th_f_t;
+
+scenery2_plot(Earth, Nyx, Trans, Const);
