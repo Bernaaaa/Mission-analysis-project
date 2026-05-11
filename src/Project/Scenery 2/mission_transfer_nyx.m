@@ -1,6 +1,6 @@
 function DV = mission_transfer_nyx(x, a_i, e_i, i_i, OM_i, om_i, a_f, e_f, i_f, OM_f, om_f, mu, R_sun)
     
-    % PASSO 1: Assegna le variabili che fmincon sta provando
+    % Assigning the optimization variables
     th_i = x(1);
     th_f = x(2);
     om_tn_val = x(3);
@@ -39,7 +39,7 @@ function DV = mission_transfer_nyx(x, a_i, e_i, i_i, OM_i, om_i, a_f, e_f, i_f, 
     alpha1 = atan2(r1_plane(2), r1_plane(1));
     alpha2 = atan2(r2_plane(2), r2_plane(1));
 
-    % Assicura che alpha2 sia sempre maggiore di alpha1 (trasferimento in avanti)
+    % Ensure that alpha2 is always greater than alpha1 (forward transfer)
     while alpha2 < alpha1
         alpha2 = alpha2 + 2*pi;
     end
@@ -57,19 +57,16 @@ function DV = mission_transfer_nyx(x, a_i, e_i, i_i, OM_i, om_i, a_f, e_f, i_f, 
     num_a = r1_n * (1 + e_t*cos(th_i_tn));
     den_a = 1 - e_t^2;
     a_t = num_a / den_a;            
-    rp_t = a_t * (1 - e_t); % raggio al pericentro
+    rp_t = a_t * (1 - e_t); 
 
-    % Se l'orbita passa dentro il Sole o è iperbolica/negativa
     if e_t < 0 || e_t >= 1 || rp_t <= R_sun + 1000 || a_t <= 0
         DV = 1e12; 
         return; 
     end
 
-    % Calcolo velocità (Logica par2car integrata ed efficiente)
     p_t = a_t * (1 - e_t^2);
     v_coeff = sqrt(mu/p_t);
 
-    % Velocità nel frame perifocale (PF)
     v1t_pf = v_coeff * [-sin(th_i_tn); e_t + cos(th_i_tn); 0];
     v2t_pf = v_coeff * [-sin(th_f_tn); e_t + cos(th_f_tn); 0];
 
