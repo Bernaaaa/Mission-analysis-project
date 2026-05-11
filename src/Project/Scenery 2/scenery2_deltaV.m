@@ -5,6 +5,17 @@
 
 clear; clc; close all;
 
+%% --- SETUP PERCORSI UNIVERSALE ---
+currentDir = fileparts(mfilename('fullpath'));
+
+funcFolder = fullfile(currentDir, '..', '..', 'lab');
+
+if exist(funcFolder, 'dir')
+    addpath(genpath(funcFolder));
+else
+    warning('Attenzione: La cartella delle funzioni non è stata trovata in: %s', funcFolder);
+end
+
 %% 1. PHYSICAL CONSTANTS & CONVERSION FACTORS
 AU    = 149597870.7;                % Astronomical Unit [km]
 mu    = 1.32712440041279419e+11;    % Solar Gravitational Parameter [km^3/s^2]

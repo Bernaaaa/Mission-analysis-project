@@ -4,6 +4,19 @@
 % to adjust the argument of pericenter.
 close all; clear; clc;
 
+%% --- SETUP PERCORSI UNIVERSALE ---
+currentDir = fileparts(mfilename('fullpath'));
+
+funcFolder = fullfile(currentDir, '..', '..', 'lab');
+
+if exist(funcFolder, 'dir')
+    addpath(genpath(funcFolder));
+else
+    warning('Attenzione: La cartella delle funzioni non è stata trovata in: %s', funcFolder);
+end
+
+%% --- PARAMETRI INIZIALI ---
+
 mu = 398600.4418;
 
 a = 24400.00;
@@ -56,7 +69,7 @@ for r_test = ra_range
         
         try 
             [DV1a, DV1b] = bitangentTransfer(a, e, a_test, e_test, 'pa', mu);
-            [DVP, om_p] = changeOrbitalPlaneSpecial(a_test, e_test, i, OM, om, i_f, OM_f, mu);
+            [DVP, om_p] = changeOrbitalPlaneNoPrint(a_test, e_test, i, OM, om, i_f, OM_f, mu);
             [DVom] = changePericenterArg(a_test, e_test, om_p, om_f, mu);
             [DV2a, DV2b] = bitangentTransfer(a_test, e_test, a_f, e_f, 'ap', mu);
             
@@ -81,22 +94,22 @@ e_t = best_e; % Eccentricity of the transfer orbit
 a_t = ra_t / (1 + e_t); % Semi-major axis of the transfer orbit
 
 [DeltaV1BT, DeltaV2BT, Delta_t_bt] = bitangentTransfer(a, e, a_t, e_t, 'pa', mu);
-Delta_T1 = TOF_M(a, e, th, 0, mu); % Time from initial orbit to apogee of transfer orbit
+Delta_T1 = TOF_M_NoPrint(a, e, th, 0, mu); % Time from initial orbit to apogee of transfer orbit
 
 fprintf('DeltaV for first leg of bielliptic transfer: %.4f km/s\n\n', abs(DeltaV1BT) + abs(DeltaV2BT));
 
 [DeltaVP_BLT, om_post_plane_blt, theta_plane_blt] = changeOrbitalPlane(a_t, e_t, i, OM, om, i_f, OM_f, mu); % Plane change at apogee of transfer orbit
-Delta_T2 = TOF_M(a_t, e_t, pi, theta_plane_blt, mu); % Time from apogee of transfer orbit to plane change point
+Delta_T2 = TOF_M_NoPrint(a_t, e_t, pi, theta_plane_blt, mu); % Time from apogee of transfer orbit to plane change point
 
 
 [DeltaV_omega_blt, thi_omega_blt, thf_omega_blt] = changePericenterArg(a_t, e_t, om_post_plane_blt, om_f, mu); % Clean-up at final orbit
-Delta_T3 = TOF_M(a_t, e_t, theta_plane_blt, thi_omega_blt(1), mu); % Time from plane change point to pericenter argument change point
-Delta_T4 = TOF_M(a_t, e_t, thf_omega_blt(1), pi, mu); % Time from pericenter argument change point to final orbit
+Delta_T3 = TOF_M_NoPrint(a_t, e_t, theta_plane_blt, thi_omega_blt(1), mu); % Time from plane change point to pericenter argument change point
+Delta_T4 = TOF_M_NoPrint(a_t, e_t, thf_omega_blt(1), pi, mu); % Time from pericenter argument change point to final orbit
 
 fprintf('DeltaV for argument of pericenter change: %.4f km/s\n', abs(DeltaV_omega_blt));
 
 [DeltaV3BT, DeltaV4BT, Delta_t_bt2] = bitangentTransfer(a_t, e_t, a_f, e_f, 'ap', mu); % Final transfer to target orbit
-Delta_T5 = TOF_M(a_f, e_f, 0, th_f, mu); % Time from pericenter argument change point to final orbit
+Delta_T5 = TOF_M_NoPrint(a_f, e_f, 0, th_f, mu); % Time from pericenter argument change point to final orbit
 
 fprintf('DeltaV for second leg of bielliptic transfer: %.4f km/s\n', abs(DeltaV3BT) + abs(DeltaV4BT));
 
