@@ -29,6 +29,13 @@ i_f  = deg2rad(2.19);               % Inclination [rad]
 OM_f = deg2rad(261.19);             % Longitude of Ascending Node [rad]
 om_f = deg2rad(126.66);             % Argument of Perihelion [rad]
 
+% mars data
+%a_f  = 1.523679 * AU;               % Semi-major axis [km]
+%e_f  = 0.0934;                      % Eccentricity [-]
+%i_f  = deg2rad(1.85);              % Inclination [rad]
+%OM_f = deg2rad(49.57854);           % Longitude of Ascending Node
+%om_f = deg2rad(286.502);           % Argument of Perihelion [rad]
+
 %% 3. DEPARTURE DATA: EARTH (INITIAL ORBIT)
 a_i  = 1.4946e+08;                  % Semi-major axis [km]
 e_i  = 0.016;                       % Eccentricity [-]
@@ -111,7 +118,7 @@ v2t = RT_ELIO_to_Plane' * (R_z_om' * v2t_pf);                                   
 
 %% 7. FINAL RESULTS DISPLAY
 % Calculate Time of Flight using your TOF_M function
-TOF_sec = TOF_M(a_t, e_t, th_i_t, th_f_t, mu);                  
+TOF_sec = TOF_M_NoPrint(a_t, e_t, th_i_t, th_f_t, mu);                  
 TOF_days = TOF_sec / day2sec;
 
 separator = repmat('=', 1, 55);
