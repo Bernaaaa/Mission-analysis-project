@@ -40,8 +40,8 @@ vfm = norm(vf,2);
 
 [a_f, e_f, i_f, OM_f, om_f, th_f] = car2par(rf, vf, mu);
 
-fprintf('Initial parameters\n a = %.2f\n e = %.6f\n i = %.6f\n OM = %.6f\n om = %.6f\n th = %.6f\n\n', a, e, i, OM, om, rad2deg(th));
-fprintf('Final parameters\n af = %.2f\n ef = %.6f\n if = %.6f\n OMf = %.6f\n omf = %.6f\n thf = %.6f\n\n', a_f, e_f, i_f, OM_f, om_f, rad2deg(th_f));
+fprintf('Initial parameters\n a = %.2f\n e = %.6f\n i = %.6f\n OM = %.6f\n om = %.6f\n th = %.6f\n\n', a, e, i, OM, om, th);
+fprintf('Final parameters\n af = %.2f\n ef = %.6f\n if = %.6f\n OMf = %.6f\n omf = %.6f\n thf = %.6f\n\n', a_f, e_f, i_f, OM_f, om_f, th_f);
 
 DeltaT1 = TOF_M_NoPrint(a, e, th, 0, mu);
 [DV1, DV2, tof_bit] = bitangentTransfer(a, e, a_f, e_f, 'pp', mu);
