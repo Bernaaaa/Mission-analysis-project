@@ -71,7 +71,7 @@ function [DeltaV, omf, theta] = changeOrbitalPlaneDeltaT(a, e, i_i, OMi, omi, th
     tof1 = TOF_M_NoPrint(a, e, thi, theta, mu);
     tof2 = TOF_M_NoPrint(a, e, thi, theta + pi, mu);
 
-    if tof2 < tof1                            % If the opposite point is farther, check if it offers a better maneuver
+    if tof2 < tof1                            % If the maneuver point is closer when approaching from the opposite direction
 
         theta = mod(theta + pi, 2*pi);
         

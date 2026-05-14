@@ -47,13 +47,13 @@ DeltaT1 = TOF_M_NoPrint(a, e, th, 0, mu);
 [DV1, DV2, tof_bit] = bitangentTransfer(a, e, a_f, e_f, 'pp', mu);
 
 
-[dv_plane, om_post_plane, th_plane_change] = changeOrbitalPlaneDeltaT(a, e, i, OM, om, th, i_f, OM_f, mu);
-DeltaT2 = TOF_M_NoPrint(a, e, 0, th_plane_change, mu);
+[dv_plane, om_post_plane, th_plane_change] = changeOrbitalPlaneDeltaT(a_f, e_f, i, OM, om, th, i_f, OM_f, mu);
+DeltaT2 = TOF_M_NoPrint(a_f, e_f, 0, th_plane_change, mu);
 
 
-[DV3, thi_omega_blt, thf_omega_blt] = changePericenterArg(a, e, om_post_plane, om_f, mu);
-DeltaT3 = TOF_M_NoPrint(a, e, th_plane_change, thi_omega_blt(2), mu);
-DeltaT4 = TOF_M_NoPrint(a, e, thf_omega_blt(2), th_f, mu);
+[DV3, thi_omega_blt, thf_omega_blt] = changePericenterArg(a_f, e_f, om_post_plane, om_f, mu);
+DeltaT3 = TOF_M_NoPrint(a_f, e_f, th_plane_change, thi_omega_blt(2), mu);
+DeltaT4 = TOF_M_NoPrint(a_f, e_f, thf_omega_blt(2), th_f, mu);
 
 DeltaT_TOT = DeltaT1 + DeltaT2 + DeltaT3 + DeltaT4 + tof_bit;
 
