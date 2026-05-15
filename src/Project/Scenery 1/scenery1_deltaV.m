@@ -106,7 +106,7 @@ Delta_T2 = TOF_M_NoPrint(a_t, e_t, pi, theta_plane_blt, mu); % Time from apogee 
 Delta_T3 = TOF_M_NoPrint(a_t, e_t, theta_plane_blt, thi_omega_blt(1), mu); % Time from plane change point to pericenter argument change point
 Delta_T4 = TOF_M_NoPrint(a_t, e_t, thf_omega_blt(1), pi, mu); % Time from pericenter argument change point to final orbit
 
-fprintf('DeltaV for argument of pericenter change: %.4f km/s\n', abs(DeltaV_omega_blt));
+fprintf('\nDeltaV for argument of pericenter change: %.4f km/s\n', abs(DeltaV_omega_blt));
 
 [DeltaV3BT, DeltaV4BT, Delta_t_bt2] = bitangentTransfer(a_t, e_t, a_f, e_f, 'ap', mu); % Final transfer to target orbit
 Delta_T5 = TOF_M_NoPrint(a_f, e_f, 0, th_f, mu); % Time from pericenter argument change point to final orbit
@@ -126,3 +126,13 @@ minutes = floor(mod(DeltaT_TOT, 3600) / 60);
 seconds = floor(mod(DeltaT_TOT, 60));
 
 fprintf('Total Time of Flight for Bielliptic Transfer: %d days, %d hours, %d minutes, %d seconds\n', days, hours, minutes, seconds);
+
+
+% struct for plot function
+GTO.a = a; GTO.e = e; GTO.i = i; GTO.OM = OM;
+GTO.om = om; GTO.th = th;
+
+Park.a = a_f; Park.e = e_f; Park.i = i_f; Park.OM = OM_f;
+Park.om = om_f; Park.th = th_f;
+
+%TODO: finish plot function for scenery1
