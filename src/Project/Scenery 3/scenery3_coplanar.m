@@ -80,7 +80,7 @@ v_inf_nyx = 4.0173; % [km/s]
 a_h_nyx = -mu_nyx / (v_inf_nyx^2);
 
 % Define search grid for periapsis radius (From surface to SOI edge)
-r_ph_grid = linspace((D_nyx / 2) + 0.01, nyx_SOI, 1000);
+r_ph_grid = linspace((D_nyx / 2) + 0.1, nyx_SOI, 1000);
 best_dv_nyx = inf;
 
 % Find the optimal periapsis radius that minimizes capture Delta-V
@@ -98,13 +98,12 @@ for rp = r_ph_grid
     % Required Delta-V for capture maneuver
     deltaV = abs(v_ocn - vph);
     
-    % Update optimal parameters if current Delta-V is lower
     if deltaV < best_dv_nyx
-        best_dv_nyx           = deltaV;
-        best_rp_nyx           = rp;
-        best_eh_nyx           = eh;
-        best_impact_n_nyx     = -a_h_nyx * sqrt(eh^2 - 1);
-        best_deflection_nyx   = 2 * asin(1 / eh);
+        best_dv_nyx = deltaV;
+        best_rp_nyx = rp;
+        best_eh_nyx = eh;
+        best_impact_n_nyx = -a_h_nyx * sqrt(eh^2 - 1);
+        best_deflection_nyx = 2 * asin(1 / eh);
     end
 end 
 
