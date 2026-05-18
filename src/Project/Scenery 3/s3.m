@@ -1,98 +1,164 @@
+% =========================================================================
+% INTERPLANETARY MISSION ANALYSIS - SCENARIO 3: PATCHED CONICS
+% Calculation of Departure (Earth) and Arrival (Nyx) Hyperbolic Trajectories
+% =========================================================================
+
 clear; clc; close all;
 
-%% --- SETUP PERCORSI UNIVERSALE ---
+%% 0. PATH SETUP
+% Ensure the common functions folder is included in the MATLAB path
 currentDir = fileparts(mfilename('fullpath'));
-
 funcFolder = fullfile(currentDir, '..', '..', 'lab');
 
 if exist(funcFolder, 'dir')
     addpath(genpath(funcFolder));
 else
-    warning('Attenzione: La cartella delle funzioni non è stata trovata in: %s', funcFolder);
+    warning('Warning: Functions folder not found at: %s', funcFolder);
 end
 
 %% 1. PHYSICAL CONSTANTS & CONVERSION FACTORS
+% -------------------------------------------------------------------------
+% Fundamental masses and dimensions
+M_sun   = 1.989e30;       % [kg] Mass of the Sun
+M_earth = 5.972e24;       % [kg] Mass of the Earth
+M_nyx   = 1.0472e12;      % [kg] Mass of Asteroid 3908 Nyx
+D_nyx   = 1.0;            % [km] Diameter of 3908 Nyx
+AU      = 149597870.7;    % [km] Astronomical Unit
 
-% --- Physical Constants ---
-M_sun = 1.989e30;                       % Mass of the Sun in kg
-M_earth = 5.972e24;                     % Mass of the Earth in kg
-M_nyx = 1.0472e12;                      % Mass of 3908 Nyx in kg
-D_nyx = 1.0;                            % Diameter of 3908 Nyx in km
-AU = 149597870.7;                       % Astronomical Unit in km
-G = 6.67430e-20;                        % km^3 kg^-1 s^-2                        
-mu_earth = G * M_earth;                   % Gravitational parameter of Earth in km^3/s^2
-mu_sun = G * M_sun;                       % Gravitational parameter of Sun in km^3/s^2
-mu_nyx = G * M_nyx;                       % Gravitational parameter of Nyx in km^3/s^2
+% Gravitational parameters (Converted to km-based units: km^3 / (kg * s^2))
+G        = 6.67430e-20;   
+mu_earth = G * M_earth;   % [km^3/s^2] Earth's gravitational parameter
+mu_sun   = G * M_sun;     % [km^3/s^2] Sun's gravitational parameter
+mu_nyx   = G * M_nyx;     % [km^3/s^2] Nyx's gravitational parameter
+
 
 %% 2. ORBITAL PARAMETERS & POSITIONS
+% -------------------------------------------------------------------------
+% --- Earth Parking Orbit State Vector (From Scenery 1) ---
+% Position [km] and Velocity [km/s] relative to Earth
+ri = [-7090.590200; -5612.557300; 3948.902900];
+vi = [5.698000; -5.995000; 1.710000];
 
-% --- Earth parking orbit (Scenery 1) ---
-r_xpi = -7090.590200;
-r_ypi = -5612.557300;
-r_zpi = 3948.902900;
-v_xpi = 5.698000;
-v_ypi = -5.995000;
-v_zpi = 1.710000;
-
-ri = [r_xpi; r_ypi; r_zpi];
-vi = [v_xpi; v_ypi; v_zpi];
-
+% Convert Cartesian state vector to Keplerian elements
 [a_pi, e_pi, i_pi, OM_pi, om_pi, th_pi] = car2par(ri, vi, mu_earth);
 
-% --- Earth orbit (Scenery 2) ---
-a_earth  = 1.4946e+08;                  % Semi-major axis [km]
-e_earth  = 0.016;                       % Eccentricity [-]
-i_earth  = 9.1920e-05;                  % Inclination [rad]
-OM_earth = 2.7847;                      % Longitude of Ascending Node [rad]
-om_earth = 5.2643;                      % Argument of Perihelion [rad]
-th_earth = deg2rad(252.1890);           % True Anomaly [rad]
+% --- Heliocentric Orbits (From Scenery 2) ---
+% Earth's heliocentric parameters
+a_earth  = 1.4946e+08;           % [km] Semi-major axis
+e_earth  = 0.016;                % [-] Eccentricity
+th_earth = deg2rad(252.1890);    % [rad] True Anomaly at departure
 
-% --- Nyx orbit (Scenery 2) ---
-a_nyx  = 1.927925 * AU;               % Semi-major axis [km]
-e_nyx  = 0.459072;                    % Eccentricity [-]
-i_nyx  = deg2rad(2.19);               % Inclination [rad]
-OM_nyx = deg2rad(261.19);             % Longitude of Ascending Node [rad]
-om_nyx = deg2rad(126.66);             % Argument of Perihelion [rad]
-th_nyx = deg2rad(28.4244);            % True Anomaly [rad]
+% Nyx's heliocentric parameters
+a_nyx  = 1.927925 * AU;          % [km] Semi-major axis
+e_nyx  = 0.459072;               % [-] Eccentricity
+th_nyx = deg2rad(28.4244);       % [rad] True Anomaly at arrival
 
 
+%% 3. SPHERES OF INFLUENCE (SOI) CALCULATION
+% -------------------------------------------------------------------------
+% Heliocentric distance of Earth at departure
+p_earth = a_earth * (1 - e_earth^2);   
+R_earth_departure = p_earth / (1 + e_earth * cos(th_earth));
 
-%% Strategy
-% nyx hyperbolic
-a_h = -mu_nyx/(4.0173^2);
-r_ph = linspace(D_nyx/2 + 0.01, 2000, 100000);
-best_dv = inf;
+% Earth's Sphere of Influence
+earth_SOI = R_earth_departure * (M_earth / M_sun)^(2/5);  
 
-for rp = r_ph
-    v_ocn = sqrt(mu_nyx/rp);
-    eh = 1 - rp/a_h;
+% Heliocentric distance of Nyx at arrival
+p_nyx = a_nyx * (1 - e_nyx^2);         
+R_nyx_arrival = p_nyx / (1 + e_nyx * cos(th_nyx));
 
-    vph = sqrt(4.0173^2 + 2*mu_nyx/rp);
-    impact_n = -a_h*sqrt(eh^2-1);
+% Nyx's Sphere of Influence
+nyx_SOI = R_nyx_arrival * (M_nyx / M_sun)^(2/5);  
+
+
+%% 4. ARRIVAL HYPERBOLA (ASTEROID NYX CAPTURE)
+% -------------------------------------------------------------------------
+% Based on Scenery 2, the hyperbolic excess velocity at arrival is known
+v_inf_nyx = 4.0173; % [km/s]
+
+% Hyperbola semi-major axis
+a_h_nyx = -mu_nyx / (v_inf_nyx^2);
+
+% Define search grid for periapsis radius (From surface to SOI edge)
+r_ph_grid = linspace((D_nyx / 2) + 0.01, nyx_SOI, 1000);
+best_dv_nyx = inf;
+
+% Find the optimal periapsis radius that minimizes capture Delta-V
+for rp = r_ph_grid
+    
+    % Circular orbit velocity at current altitude
+    v_ocn = sqrt(mu_nyx / rp);
+    
+    % Hyperbola geometry
+    eh = 1 - (rp / a_h_nyx);
+    
+    % Velocity at hyperbolic periapsis 
+    vph = sqrt(v_inf_nyx^2 + 2 * mu_nyx / rp);
+    
+    % Required Delta-V for capture maneuver
     deltaV = abs(v_ocn - vph);
-
-    if deltaV < best_dv
-        best_dv = deltaV;
-        best_rp = rp;
+    
+    % Update optimal parameters if current Delta-V is lower
+    if deltaV < best_dv_nyx
+        best_dv_nyx           = deltaV;
+        best_rp_nyx           = rp;
+        best_eh_nyx           = eh;
+        best_impact_n_nyx     = -a_h_nyx * sqrt(eh^2 - 1);
+        best_deflection_nyx   = 2 * asin(1 / eh);
     end
 end 
 
-fprintf('Nyx deltaV: %.4f km/s at rp = %.4f km\n', best_dv, best_rp);
 
-deflection_angle = 2*asin(1/eh);
+%% 5. DEPARTURE HYPERBOLA (EARTH ESCAPE)
+% -------------------------------------------------------------------------
+% Based on Scenery 2, the hyperbolic excess velocity at departure is known
+v_inf_earth = 2.9986; % [km/s]
 
-%earth hyperbolic
+% Hyperbola semi-major axis
+a_h_earth = -mu_earth / (v_inf_earth^2);
 
-a_h_earth = -mu_earth/(2.9986^2);
+% The optimal maneuver occurs at the periapsis of the parking orbit (Oberth effect)
+r_pi_earth = a_pi * (1 - e_pi); 
+v_pi_earth = sqrt(mu_earth / r_pi_earth) * sqrt(1 + e_pi); % Real velocity at periapsis
 
-r_pi = a_pi*(1-e_pi);                 % Periapsis distance of the parking orbit
-v_ocn_earth = sqrt(mu_earth/r_pi)*sqrt(1+e_pi);              % Orbital velocity at periapsis of the parking orbit
+% Hyperbola geometry
+e_h_earth = 1 - (r_pi_earth / a_h_earth); 
 
-e_h_earth = 1 - r_pi/a_h_earth;         % Eccentricity of the hyperbolic trajectory
-vph_earth = sqrt(2.9986^2 + 2*mu_earth/r_pi);
+% Velocity required at hyperbolic periapsis to escape with v_inf_earth
+vph_earth = sqrt(v_inf_earth^2 + 2 * mu_earth / r_pi_earth);
 
-impact_n_earth = -a_h_earth*sqrt(e_h_earth^2-1);
-deltaV_earth = abs(v_ocn_earth - vph_earth);
+% Required Delta-V for departure maneuver
+deltaV_earth = abs(vph_earth - v_pi_earth);
+
+% Calculate geometric parameters
+impact_n_earth = -a_h_earth * sqrt(e_h_earth^2 - 1);
+deflection_earth = 2 * asin(1 / e_h_earth);
 
 
-fprintf('Earth deltaV: %.4f km/s at rp = %.4f km\n', deltaV_earth, r_pi);
+%% 6. MISSION REPORT OUTPUT
+% -------------------------------------------------------------------------
+fprintf('\n=========================================================\n');
+fprintf('           SCENARIO 3: PATCHED CONICS ANALYSIS           \n');
+fprintf('=========================================================\n\n');
+
+fprintf('--- SPHERES OF INFLUENCE (SOI) ---\n');
+fprintf('Earth SOI at departure : %10.2f km\n', earth_SOI);
+fprintf('Nyx SOI at arrival     : %10.4f km\n\n', nyx_SOI);
+
+fprintf('--- PHASE 1: EARTH DEPARTURE ---\n');
+fprintf('Maneuver Delta-V       : %10.4f km/s\n', deltaV_earth);
+fprintf('Maneuver Altitude (rp) : %10.4f km\n', r_pi_earth);
+fprintf('Hyperbola Eccentricity : %10.4f\n', e_h_earth);
+fprintf('Deflection Angle       : %10.4f deg\n', rad2deg(deflection_earth));
+fprintf('Impact Parameter       : %10.4f km\n\n', impact_n_earth);
+
+fprintf('--- PHASE 3: NYX ARRIVAL (CAPTURE) ---\n');
+fprintf('Minimum Delta-V        : %10.4f km/s\n', best_dv_nyx);
+fprintf('Optimal Altitude (rp)  : %10.4f km\n', best_rp_nyx);
+fprintf('Hyperbola Eccentricity : %10.4e\n', best_eh_nyx);
+fprintf('Deflection Angle       : %10.4e deg\n', rad2deg(best_deflection_nyx));
+fprintf('Impact Parameter       : %10.4f km\n', best_impact_n_nyx);
+
+fprintf('\n=========================================================\n');
+fprintf('TOTAL PATCHED CONICS DELTA-V: %.4f km/s\n', abs(deltaV_earth) + abs(best_dv_nyx));
+fprintf('=========================================================\n');
