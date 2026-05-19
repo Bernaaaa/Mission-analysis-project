@@ -127,11 +127,15 @@ h_hyperbola = cross(ri, v_inf_vec_earth_eci);
 cos_Delta_i = dot(h_park, h_hyperbola) / (norm(h_park) * norm(h_hyperbola));
 Delta_i = acos(cos_Delta_i); 
 
+if Delta_i > pi/2
+    Delta_i = pi - Delta_i; % Ensure angle is between 0 and 90 degrees
+end
+
 % 3. Total Delta-V (Magnitude of the vectorial difference)
 deltaV_earth = sqrt(v_pi_earth^2 + vph_earth^2 - 2 * v_pi_earth * vph_earth * cos(Delta_i));
 % ---------------------------------------------------------
 
-% Geometric parameters
+% Geometric parameters to be determined by solving a non-linear system (using the hyperbolic trajectory equations)
 e_h_earth        = 1 - (r_pi_earth / a_h_earth); 
 impact_n_earth   = -a_h_earth * sqrt(e_h_earth^2 - 1);
 deflection_earth = 2 * asin(1 / e_h_earth);
