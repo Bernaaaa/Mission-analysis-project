@@ -134,7 +134,7 @@ Park.a = a_f; Park.e = e_f; Park.i = i_f; Park.OM = OM_f; Park.om = om_f; Park.t
 
 % Ramo 1: punti esatti delle manovre interne
 Trans1.a = a_t; Trans1.e = e_t; Trans1.i = i; Trans1.OM = OM; Trans1.om = om; Trans1.mu = mu;
-Trans1.theta_plane = theta_plane_blt;
+Trans1.theta_plane = theta_plane_blt; Trans1.om_mid = om_post_plane_blt;
 Trans1.thi_omega = thi_omega_blt(1);
 
 % Ramo 2: punto di uscita dalla manovra di omega
