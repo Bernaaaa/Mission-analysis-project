@@ -128,11 +128,17 @@ seconds = floor(mod(DeltaT_TOT, 60));
 fprintf('Total Time of Flight for Bielliptic Transfer: %d days, %d hours, %d minutes, %d seconds\n', days, hours, minutes, seconds);
 
 
-% struct for plot function
-GTO.a = a; GTO.e = e; GTO.i = i; GTO.OM = OM;
-GTO.om = om; GTO.th = th;
+% --- PREPARAZIONE DATI PER IL PLOT ---
+GTO.a = a; GTO.e = e; GTO.i = i; GTO.OM = OM; GTO.om = om; GTO.th = th; GTO.mu = mu;
+Park.a = a_f; Park.e = e_f; Park.i = i_f; Park.OM = OM_f; Park.om = om_f; Park.th = th_f; Park.mu = mu;
 
-Park.a = a_f; Park.e = e_f; Park.i = i_f; Park.OM = OM_f;
-Park.om = om_f; Park.th = th_f;
+% Ramo 1: punti esatti delle manovre interne
+Trans1.a = a_t; Trans1.e = e_t; Trans1.i = i; Trans1.OM = OM; Trans1.om = om; Trans1.mu = mu;
+Trans1.theta_plane = theta_plane_blt;
+Trans1.thi_omega = thi_omega_blt(1);
 
-%TODO: finish plot function for scenery1
+% Ramo 2: punto di uscita dalla manovra di omega
+Trans2.a = a_t; Trans2.e = e_t; Trans2.i = i_f; Trans2.OM = OM_f; Trans2.om = om_f; Trans2.mu = mu;
+Trans2.thf_omega = thf_omega_blt(1);
+
+scenery1_plot(GTO, Park, Trans1, Trans2);
