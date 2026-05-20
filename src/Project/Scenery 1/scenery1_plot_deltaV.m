@@ -1,4 +1,4 @@
-function scenery1_plot(GTO, Park, Trans1, Trans2)
+function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     
     mu = GTO.mu;
     R_E = 6378.137;   % [km] Raggio terrestre

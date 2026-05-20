@@ -141,4 +141,4 @@ Trans1.thi_omega = thi_omega_blt(1);
 Trans2.a = a_t; Trans2.e = e_t; Trans2.i = i_f; Trans2.OM = OM_f; Trans2.om = om_f; Trans2.mu = mu;
 Trans2.thf_omega = thf_omega_blt(1);
 
-scenery1_plot(GTO, Park, Trans1, Trans2);
+scenery1_plot_deltaV(GTO, Park, Trans1, Trans2);
