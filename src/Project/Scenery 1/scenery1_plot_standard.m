@@ -82,7 +82,7 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     plot3(R5(1,1), R5(2,1), R5(3,1), mkOpt{:}, 'MarkerEdgeColor', c_park, 'DisplayName', P5.maneuver);
     
     % Target Finale
-    plot3(R5(1,end), R5(2,end), R5(3,end), 'square', 'MarkerEdgeColor', 'k', ...
+    plot3(R5(1,end), R5(2,end), R5(3,end), 'o', 'MarkerEdgeColor', 'k', ...
           'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', 'Final Target');
 
     % --- 4. DETTAGLI EDITORIALI E ZOOM OTTIMIZZATO ---

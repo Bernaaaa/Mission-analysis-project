@@ -40,10 +40,17 @@ fprintf('DeltaV for bitangent transfer: %.4f km/s\n', DeltaV1BT + DeltaV2BT);
 Delta_t5 = TOF_M(a_f, e_f, pi, th_f, mu);
 
 DeltaV_total = abs(DeltaV) + abs(DeltaVCP) + abs(DeltaV1BT) + abs(DeltaV2BT);
-DeltaT_total = abs(Delta_t1) + abs(Delta_t2) + abs(Delta_t3) + abs(Delta_t4) + abs(Delta_t5);
+DeltaT_TOT = abs(Delta_t1) + abs(Delta_t2) + abs(Delta_t3) + abs(Delta_t4) + abs(Delta_t5);
 
 fprintf('Total DeltaV: %.4f km/s\n', DeltaV_total);
-fprintf('Total Time of Flight: %.2f seconds\n', DeltaT_total);
+
+% flight time in days and hours and minutes and seconds
+days = floor(DeltaT_TOT / (24*3600));
+hours = floor(mod(DeltaT_TOT, 24*3600) / 3600);
+minutes = floor(mod(DeltaT_TOT, 3600) / 60);
+seconds = floor(mod(DeltaT_TOT, 60));
+
+fprintf('Total Time of Flight for transfer: %d days, %d hours, %d minutes, %d seconds\n', days, hours, minutes, seconds);
 
 % =========================================================================
 % PREPARAZIONE DATI PER IL PLOT STANDARD (SCENARIO 1)

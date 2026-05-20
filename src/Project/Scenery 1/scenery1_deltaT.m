@@ -43,8 +43,8 @@ vfm = norm(vf,2);
 fprintf('Initial parameters\n a = %.2f\n e = %.6f\n i = %.6f\n OM = %.6f\n om = %.6f\n th = %.6f\n\n', a, e, i, OM, om, th);
 fprintf('Final parameters\n af = %.2f\n ef = %.6f\n if = %.6f\n OMf = %.6f\n omf = %.6f\n thf = %.6f\n\n', a_f, e_f, i_f, OM_f, om_f, th_f);
 
-DeltaT1 = TOF_M_NoPrint(a, e, th, 0, mu);
-[DV1, DV2, tof_bit] = bitangentTransfer(a, e, a_f, e_f, 'pp', mu);
+DeltaT1 = TOF_M_NoPrint(a, e, th, pi, mu);
+[DV1, DV2, tof_bit] = bitangentTransfer(a, e, a_f, e_f, 'ap', mu);
 
 
 [dv_plane, om_post_plane, th_plane_change] = changeOrbitalPlaneDeltaT(a_f, e_f, i, OM, om, th, i_f, OM_f, mu);
@@ -66,3 +66,44 @@ minutes = floor(mod(DeltaT_TOT, 3600) / 60);
 seconds = floor(mod(DeltaT_TOT, 60));
 
 fprintf('Total Time of Flight for transfer: %d days, %d hours, %d minutes, %d seconds\n', days, hours, minutes, seconds);
+
+
+% =========================================================================
+% PREPARAZIONE DATI PER IL PLOT STANDARD (SCENARIO 1)
+% =========================================================================
+
+% 1. Initial Orbit (P1)
+P1.a = a; P1.e = e; P1.i = i; P1.OM = OM; P1.om = om;
+P1.th_in = th; P1.th_out = pi; % Arriva al apocentro
+P1.name = 'Initial Orbit'; P1.maneuver = 'Start Position';
+
+% 2. Bitangent Transfer (P2) - DA APOCENTRO A PERICENTRO
+ra_initial = a*(1+e);
+rp_final = a_f*(1-e_f);
+P2.a = (ra_initial + rp_final)/2;       % Semi-major axis della bitangente di trasferimento 
+P2.e = (ra_initial - rp_final)/(ra_initial + rp_final); % Eccentricità della bitangente di trasferimento
+P2.i = i; P2.OM = OM; P2.om = om;
+P2.th_in = pi; 
+P2.th_out = 0; % Arriva al pericentro dell'orbita di trasferimento (th = 0)
+P2.name = 'Bitangent Transfer (AP)'; P2.maneuver = '$\Delta V_{1BT}$';
+
+% 3. Coasting post-Bitangente (P3)
+P3.a = a_f; P3.e = e_f; P3.i = i; P3.OM = OM; P3.om = om;
+P3.th_in = 0; 
+P3.th_out = th_plane_change;
+P3.name = 'Post-Bitangent Coasting'; P3.maneuver = '$\Delta V_{2BT}$ (Arrival)';
+
+% 4. Coasting post-Cambio Piano (P4)
+P4.a = a_f; P4.e = e_f; P4.i = i_f; P4.OM = OM_f; P4.om = om_post_plane;
+P4.th_in = th_plane_change; 
+P4.th_out = thi_omega_blt(2);
+P4.name = 'Post-Plane Change Coasting'; P4.maneuver = '$\Delta V_{plane}$';
+
+% 5. Final Orbit (P5)
+P5.a = a_f; P5.e = e_f; P5.i = i_f; P5.OM = OM_f; P5.om = om_f;
+P5.th_in = thf_omega_blt(2); 
+P5.th_out = th_f;
+P5.name = 'Final Orbit'; P5.maneuver = '$\Delta V_{\omega}$';
+
+% --- Generazione Grafico ---
+scenery1_plot_standard(P1, P2, P3, P4, P5);
