@@ -110,7 +110,7 @@ minutes = floor(mod(DeltaT_TOT, 3600) / 60);
 seconds = floor(mod(DeltaT_TOT, 60));
 
 fprintf('\n=========================================================================\n');
-fprintf('                 STRATEGY 2: BIELLIPTIC MISSION SUMMARY                  \n');
+fprintf('                 STRATEGY 3: BIELLIPTIC MISSION SUMMARY                  \n');
 fprintf('=========================================================================\n');
 
 % --- 1. COMPARAZIONE ORBITALE ---

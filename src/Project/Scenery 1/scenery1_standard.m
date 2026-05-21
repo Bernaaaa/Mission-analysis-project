@@ -22,27 +22,22 @@ vf = [v_xf; v_yf; v_zf];
 rfm = norm(rf,2);
 vfm = norm(vf,2);
 
-
 [a_f, e_f, i_f, OM_f, om_f, th_f] = car2par(rf, vf, mu);
 
-fprintf('Final parameters\n af = %.2f\n ef = %.6f\n if = %.6f\n OMf = %.6f\n omf = %.6f\n thf = %.6f\n\n', a_f, e_f, i_f, OM_f, om_f, th_f);
 
-[DeltaV, omf, theta] = changeOrbitalPlane(a, e, i, OM, om, i_f, OM_f, mu);
-Delta_t1 = TOF_M(a, e, th, theta, mu);
+[DeltaVP_BLT, omf, theta] = changeOrbitalPlane(a, e, i, OM, om, i_f, OM_f, mu);
+Delta_t1 = TOF_M_NoPrint(a, e, th, theta, mu);
 
 [DeltaVCP, thi, thf] = changePericenterArg(a, e, omf, om_f, mu);
-fprintf('DeltaV for argument of pericenter change: %.4f km/s\n', DeltaVCP);
-Delta_t2 = TOF_M(a, e, theta, thi(2), mu);
-Delta_t3 = TOF_M(a, e, thf(2), 0, mu);
+Delta_t2 = TOF_M_NoPrint(a, e, theta, thi(2), mu);
+Delta_t3 = TOF_M_NoPrint(a, e, thf(2), 0, mu);
 
 [DeltaV1BT, DeltaV2BT, Delta_t4] = bitangentTransfer(a, e, a_f, e_f,'pa',mu);
-fprintf('DeltaV for bitangent transfer: %.4f km/s\n', DeltaV1BT + DeltaV2BT);
-Delta_t5 = TOF_M(a_f, e_f, pi, th_f, mu);
+Delta_t5 = TOF_M_NoPrint(a_f, e_f, pi, th_f, mu);
 
-DeltaV_total = abs(DeltaV) + abs(DeltaVCP) + abs(DeltaV1BT) + abs(DeltaV2BT);
+DeltaV_total = abs(DeltaVP_BLT) + abs(DeltaVCP) + abs(DeltaV1BT) + abs(DeltaV2BT);
 DeltaT_TOT = abs(Delta_t1) + abs(Delta_t2) + abs(Delta_t3) + abs(Delta_t4) + abs(Delta_t5);
 
-fprintf('Total DeltaV: %.4f km/s\n', DeltaV_total);
 
 % flight time in days and hours and minutes and seconds
 days = floor(DeltaT_TOT / (24*3600));
@@ -50,7 +45,33 @@ hours = floor(mod(DeltaT_TOT, 24*3600) / 3600);
 minutes = floor(mod(DeltaT_TOT, 3600) / 60);
 seconds = floor(mod(DeltaT_TOT, 60));
 
-fprintf('Total Time of Flight for transfer: %d days, %d hours, %d minutes, %d seconds\n', days, hours, minutes, seconds);
+
+fprintf('\n=========================================================================\n');
+fprintf('                 STRATEGY 1: STANDARD MISSION SUMMARY                  \n');
+fprintf('=========================================================================\n');
+
+% --- 1. COMPARAZIONE ORBITALE ---
+fprintf('\n%-20s | %-15s | %-15s\n', 'Parametro', 'Orbite Iniziale', 'Orbite Finale');
+fprintf('-------------------------------------------------------------------------\n');
+fprintf('%-20s | %-15.2f | %-15.2f\n', 'Semi-asse (a)', a, a_f);
+fprintf('%-20s | %-15.4f | %-15.4f\n', 'Eccentricità (e)', e, e_f);
+fprintf('%-20s | %-15.4f | %-15.4f\n', 'Inclinazione (i)', i, i_f);
+fprintf('%-20s | %-15.4f | %-15.4f\n', 'Nodo (OM)', OM, OM_f);
+fprintf('%-20s | %-15.4f | %-15.4f\n', 'Pericentro (om)', om, om_f);
+fprintf('%-20s | %-15.4f | %-15.4f\n', 'Anomalia (th)', th, th_f);
+
+% --- 2. LOG MANOVRE ---
+fprintf('\n%-30s | %-15s | %-12s\n', 'Manovra', 'Anomalia (rad)', 'DeltaV (km/s)');
+fprintf('-------------------------------------------------------------------------\n');
+fprintf('%-30s | %-15.4f | %-12.4f\n', 'Plane Change (Optimal DV)', theta, abs(DeltaVP_BLT));
+fprintf('%-30s | %-15.4f | %-12.4f\n', 'Arg. Pericenter Adj.', thi(2), abs(DeltaVCP));
+fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Arrival (BT-PA)', pi, abs(DeltaV1BT) + abs(DeltaV2BT));
+
+% --- 3. SUMMARY FINALE ---
+fprintf('\n=========================================================================\n');
+fprintf('TOTALE DELTA-V          : %10.4f km/s\n', DeltaV_total);
+fprintf('TEMPO TOTALE (TOF)      : %d d, %02d h, %02d m, %02d s\n', days, hours, minutes, seconds);
+fprintf('=========================================================================\n\n');
 
 % =========================================================================
 % PREPARAZIONE DATI PER IL PLOT STANDARD (SCENARIO 1)
