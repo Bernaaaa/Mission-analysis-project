@@ -1,5 +1,16 @@
 close all; clear; clc;
 
+%% --- SETUP PERCORSI UNIVERSALE ---
+currentDir = fileparts(mfilename('fullpath'));
+
+funcFolder = fullfile(currentDir, '..', '..', 'lab');
+
+if exist(funcFolder, 'dir')
+    addpath(genpath(funcFolder));
+else
+    warning('Attenzione: La cartella delle funzioni non è stata trovata in: %s', funcFolder);
+end
+
 mu = 398600.4418;
 
 a = 24400.00;
