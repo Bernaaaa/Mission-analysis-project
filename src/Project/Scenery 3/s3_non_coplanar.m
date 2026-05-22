@@ -2,6 +2,18 @@ clc
 clear
 close all
 
+%% 0. PATH SETUP
+% -------------------------------------------------------------------------
+currentDir = fileparts(mfilename('fullpath'));
+funcFolder = fullfile(currentDir, '..', '..', 'lab');
+
+if exist(funcFolder, 'dir')
+    addpath(genpath(funcFolder));
+else
+    warning('Warning: Functions folder not found at: %s', funcFolder);
+end
+
+
 
 % Dati orbita di parcheggio alla fine dello scenario 1;
 r_xi = -7090.590200;
@@ -129,7 +141,7 @@ N = cross(k, h / norm(h));
 N = N / norm(N); %dovrebbe essere già normalizzato, ma lo normalizzo comunque per sicurezza (better safe than sorry)
 
 % inclinazione dell'iperbole
-i_h = acos(h(3));
+i = acos(h(3));
 
  %ascensione retta del nodo ascendente
     if N(2) >= 0
@@ -145,3 +157,15 @@ cos_beta = dot(N, rh_ver);
 sin_beta = dot(cross(N, rh_ver), h / norm(h));
 
 omH = atan2(sin_beta, cos_beta);
+
+
+[~, vh] = par2car(ah, e_h, i, OM, omH, theta_h, mu);
+[~, v1] = par2car(a_i, e_i, i_i, OM_i, om_i, 0, mu);   
+
+DV1 = norm(vh - v1);
+
+% LA DV2 si calcola anologamente a quanto fatto nel caso coplanare
+
+
+        
+
