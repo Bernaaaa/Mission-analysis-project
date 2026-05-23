@@ -107,6 +107,7 @@ x0 = [deg2rad(10); deg2rad(20); 2]; % guess iniziale scelta a posteriori guardan
 
 
 %stampo a schermo i risultati
+fprintf('\n ORBITA IPERBOLICA NEL CASO DI INIEZIONE AL PERICENTRO')
 fprintf('\n============================================================\n');
 fprintf('| %-25s | %-15s |\n', 'Parametro', 'Valore');
 fprintf('============================================================\n');
@@ -160,7 +161,7 @@ om_H = beta - theta_h;
 [rh1, vh] = par2car(ah, e_h, i_H, OM_H, om_H, theta_h, mu);
 
 
-DV5 = norm(vh - v1);
+DV_peri = norm(vh - v1);
 
 % LA DV2 si calcola anologamente a quanto fatto nel caso coplanare
 %% LAVORO DI OTTIMIZZAZIONE DELLA MANOVRA DI INIEZIONE
@@ -175,6 +176,8 @@ delta_theta = deg2rad(1); % passo di 1 grado
 theta_val = theta_low:delta_theta:theta_high;
 DV_values = zeros(size(theta_val));
 
+exit_flag_val = zeros(size(theta_val));
+
 for j = 1:length(theta_val)
     theta_i = theta_val(j);
 
@@ -188,12 +191,24 @@ for j = 1:length(theta_val)
     f = @(x) [ ( ah * (1 - x(3)^2) ) / (1 + x(3) .* cos(x(2)))  - rh; ...
                                     cos(x(1)) + 1 / x(3); ...
                                     -x(1) + alpha + x(2)];
+    
+    g = @(e) ...
+    ah * (1 - e.^2) ./ ...
+    (1 + e .* cos( acos(-1 ./ e) - alpha )) ...
+    - rh;
 
-    fsol = fsolve(f, x0, optimoptions('fsolve', 'Display', 'final-detailed', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+    % fsol = fsolve(f, x0, optimoptions('fsolve', 'Display', 'final-detailed', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+    [e_h, ~, exit_flag] = fsolve(g, 2,optimoptions('fsolve', 'Display', 'off', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+    theta_inf = acos(-1 / e_h);
+    theta_h = theta_inf - alpha;
 
-    theta_inf = fsol(1);
-    theta_h = fsol(2);
-    e_h = fsol(3);
+    exit_flag_val(j) = exit_flag;
+
+    % fsol = fsolve(f, x0, optimoptions('fsolve', 'Display', 'final-detailed', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+
+    % theta_inf = fsol(1);
+    % theta_h = fsol(2);
+    % e_h = fsol(3);
 
     rp_h = ah * (1 - e_h^2);
 
@@ -206,6 +221,125 @@ for j = 1:length(theta_val)
         control = true;
 
         while  control == true
+
+
+            % vettore nodo ascendente dell'iperbole
+            k = [0; 0; 1];
+            N_H =  cross(k, h_H) / norm(cross(k, h_H)); 
+            N_H = N_H / norm(N_H); %dovrebbe essere già normalizzato, ma lo normalizzo comunque per sicurezza (better safe than sorry)
+
+            % inclinazione dell'iperbole
+            i_H = acos(h_H(3) / norm(h_H));
+
+
+
+            %ascensione retta del nodo ascendente
+            if N_H(2) >= 0
+                OM_H = acos(N_H(1));
+            else
+                OM_H = 2*pi - acos(N_H(1));
+            end
+
+            % argomento del pericentro
+
+            % METODO 1 -  definendo beta
+            cos_beta = dot(N_H, rh_ver);
+            sin_beta = dot(cross(N_H, rh_ver), (h_H / norm(h_H)) );
+
+            beta = atan2(sin_beta, cos_beta);
+            om_H = beta - theta_h;
+
+            % Calcolo vh
+            [rh1, vh] = par2car(ah, e_h, i_H, OM_H, om_H, theta_h, mu);
+            DV1 = norm(vh - v1);
+
+            DV_values(j) = DV1;
+
+            if dot(vh, v_inf_earth_eci) < 0 % se la direzione di vh è opposta a quella di v_inf vuol dire che abbiamo scelto il verso di percorrenza sbagliato dell'iperbole
+                h_H = - h_H;
+                
+            else
+                control = false;
+            end
+        end
+
+    else
+        DV_values(j) = inf; % se la soluzione non soddisfa le condizioni di non coplanarità e di pericentro maggiore del raggio terrestre, assegno un valore infinito alla DV per escludere questa soluzione dall'ottimizzazione
+    end
+end
+
+if any(exit_flag_val <= 0)
+    fprintf('\nAttenzione alcuni sistemi non convergono bene a zero');
+else
+    fprintf('\nTutte le soluzioni convergono bene a zero')
+end
+
+% Trovo il theta che minimizza la DV
+[~, min_index] = min(DV_values);
+optimal_theta = theta_val(min_index);
+fprintf('\nIl theta ottimale per minimizzare la DV è: %.2f gradi\n', rad2deg(optimal_theta));
+fprintf('\nLa DV minima ottenuta è: %.3f km/s\n', DV_values(min_index));
+fprintf("\nLa DV ottenuta con il pericentro dell'orbita di partenza come punto di iniezione è: %.3f km/s", DV_peri);
+fprintf("\nL'ottimizzazione del punto di iniezione ha permesso di ridurre la DV di %.3f k/s", abs(DV_peri - DV_values(min_index)))
+
+figure(1)
+scatter(rad2deg(theta_val), DV_values);
+xlabel('Theta [deg]');
+ylabel('Delta-V [km/s]');
+title('Delta-V in funzione di Theta');
+grid on;
+
+figure(2)
+scatter3(cos(theta_val), sin(theta_val), DV_values);
+xlabel('cos(Theta)');
+ylabel('sin(Theta)');
+zlabel('Delta-V [km/s]');
+title('Delta-V in funzione di Theta');
+grid on;
+
+%% PARMETRIZZO IPERBOLE DI FUGA OTTIMIZZATA E PLOTTO LE ORBITE
+
+theta_i = optimal_theta;
+
+[rh_vec, v1] = par2car(a_i, e_i, i_i, OM_i, om_i, theta_i, mu);
+rh_ver = rh_vec / norm(rh_vec);
+
+rh = norm(rh_vec);
+
+alpha = acos(rh_ver' * r_inf);
+
+ f = @(x) [ ( ah * (1 - x(3)^2) ) / (1 + x(3) .* cos(x(2)))  - rh; ...
+                                    cos(x(1)) + 1 / x(3); ...
+                                    -x(1) + alpha + x(2)];
+
+g = @(e) ...
+    ah * (1 - e.^2) ./ ...
+    (1 + e .* cos( acos(-1 ./ e) - alpha )) ...
+    - rh;
+
+% fsol = fsolve(f, x0, optimoptions('fsolve', 'Display', 'final-detailed', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+e_h = fsolve(g, 2,optimoptions('fsolve', 'Display', 'final-detailed', 'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10 ));
+theta_inf = acos(-1 / e_h);
+theta_h = theta_inf - alpha;
+
+% theta_inf = fsol(1);
+% theta_h = fsol(2);
+% e_h = fsol(3);
+
+x = [theta_inf; theta_h; e_h];
+norm(f(x))
+
+rp_h = ah * (1 - e_h^2);
+
+if theta_inf > pi / 2 && theta_inf < pi  && rp_h > r_earth
+       
+    % vettore momento angolare specifico dell'iperbole
+    h_ver = cross(rh_ver, r_inf) / norm(cross(rh_ver, r_inf)); 
+    h_H = sqrt(mu * ah * (1 - e_h^2)) .* h_ver; %vettore momento angolare specifico dell'iperbole
+        
+    control = true;
+
+    while  control == true
 
 
         % vettore nodo ascendente dell'iperbole
@@ -225,7 +359,7 @@ for j = 1:length(theta_val)
             OM_H = 2*pi - acos(N_H(1));
         end
 
-         % argomento del pericentro
+        % argomento del pericentro
 
         % METODO 1 -  definendo beta
         cos_beta = dot(N_H, rh_ver);
@@ -236,38 +370,104 @@ for j = 1:length(theta_val)
 
         % Calcolo vh
         [rh1, vh] = par2car(ah, e_h, i_H, OM_H, om_H, theta_h, mu);
-        DV1 = norm(vh - v1);
+        
 
-        DV_values(j) = DV1;
-
-        if dot(vh, v_inf_earth_eci) < 0
-            h_H = - h_H; % se la direzione di vh è opposta a quella di v_inf vuol dire che abbiamo scelto il verso di percorrenza sbagliato dell'iperbole
-        else
-            control = false;
-        end
-
+            if dot(vh, v_inf_earth_eci) < 0 % se la direzione di vh è opposta a quella di v_inf vuol dire che abbiamo scelto il verso di percorrenza sbagliato dell'iperbole
+                h_H = - h_H;
+                
+            else
+                control = false;
+                DV1 = norm(vh - v1);
+                DV_values(j) = DV1;
+            end
     end
-    else
-        DV_values(j) = inf; % se la soluzione non soddisfa le condizioni di non coplanarità e di pericentro maggiore del raggio terrestre, assegno un valore infinito alla DV per escludere questa soluzione dall'ottimizzazione
-    end
+
+else
+    DV_values(j) = inf; % se la soluzione non soddisfa le condizioni di non coplanarità e di pericentro maggiore del raggio terrestre, assegno un valore infinito alla DV per escludere questa soluzione dall'ottimizzazione
 end
 
-% Trovo il theta che minimizza la DV
-[~, min_index] = min(DV_values);
-optimal_theta = theta_val(min_index);
-fprintf('\nIl theta ottimale per minimizzare la DV è: %.2f gradi\n', rad2deg(optimal_theta));
-fprintf('\nLa DV minima ottenuta è: %.3f km/s\n', DV_values(min_index));
 
-figure(1)
-scatter(rad2deg(theta_val), DV_values);
-xlabel('Theta [deg]');
-ylabel('Delta-V [km/s]');
-title('Delta-V in funzione di Theta');
-grid on;
+%stampo a schermo i risultati
+fprintf('\n ORBITA IPERBOLICA OTTIMA')
+fprintf('\n============================================================\n');
+fprintf('| %-25s | %-15s |\n', 'Parametro', 'Valore');
+fprintf('============================================================\n');
 
-figure(2)
-scatter3(cos(theta_val), sin(theta_val), DV_values);
+fprintf('| %-25s | %15.3f |\n', 'theta_inf [deg]', rad2deg(theta_inf));
+fprintf('| %-25s | %15.3f |\n', 'theta_h [deg]',   rad2deg(theta_h));
+fprintf('| %-25s | %15.6f |\n', 'e_h [-]',         e_h);
+fprintf('| %-25s | %15.3f |\n', 'rh [km]',         rh);
+fprintf('| %-25s | %15.3f |\n', 'v_inf [km/s]',    norm(v_inf_earth_eci));
+fprintf('| %-25s | %15.3f |\n', 'a_h [km]',        ah);
 
-DV5
+fprintf('============================================================\n');
+
+
+
+
+
+% P1 orbita di partenza Geocentrica
+
+P1.a = a_i;
+P1.e = e_i;
+P1.i = i_i;
+P1.OM = OM_i;
+P1.om = om_i;
+P1.th = theta_i;
+
+% P2 orbita di fuga iperbolica
+
+P2.a = ah;
+P2.e = e_h;
+P2.i = i_H;
+P2.OM = OM_H;
+P2.om = om_H;
+P2.th = theta_h;
+
+
+
+
+
+
+theta_vec = linspace(0,  2 * pi, 1000);
+
+
+R1 = zeros(3, length(theta_vec));
+
+for j = 1 : length(theta_vec)
+    [r_plot, ~] = par2car(P1.a, P1.e, P1.i, P1.OM, P1.om, theta_vec(j), mu);
+    R1(:, j) = r_plot;
+    
+
+end
+
+
+
+theta_vec = linspace(-theta_inf / 1.5 + 1e-3, theta_inf / 1.5 - 1e-3, 1000);
+R2= zeros(3, length(theta_vec));
+for j = 1:length(theta_vec)
+
+    [r_plot, ~] = par2car(P2.a, P2.e, P2.i, ...
+                          P2.OM, P2.om, ...
+                          theta_vec(j), mu);
+
+    R2(:, j) = r_plot;
+
+end
+
+figure(3)
+plot3(0, 0, 0, 'o', 'MarkerEdgeColor', 'k', 'LineWidth', 1.5, 'MarkerSize', 8, 'DisplayName', 'Earth');
+hold on
+plot3(R1(1, :), R1(2, :), R1(3, :), 'b', 'Linewidth', 1.5, 'DisplayName', 'Orbita di Partenza');
+plot3(R2(1,:), R2(2,:), R2(3,:), 'r', 'LineWidth', 1.5, 'DisplayName', 'Orbita di Fuga Iperbolica')
+plot3(rh_vec(1), rh_vec(2), rh_vec(3), 'x', 'MarkerEdgeColor', 'm', 'LineWidth', 1.5, 'MarkerSize', 8, 'DisplayName', 'Punto di Iniezione');
+
+grid on
+axis equal
+xlabel('x')
+ylabel('y')
+zlabel('z')
+legend('Location', 'best')
+    
 
 
