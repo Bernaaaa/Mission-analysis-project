@@ -1,172 +1,210 @@
 % =========================================================================
-% INTERPLANETARY MISSION ANALYSIS - SCENARIO 3: PATCHED CONICS
-% Calculation of Departure (Earth) and Arrival (Nyx) Hyperbolic Trajectories
+% INTERPLANETARY MISSION ANALYSIS - SCENARIO 3 (AVANZATO)
+% Calcolo dell'Iperbole di Fuga non complanare
 % =========================================================================
 
 clear; clc; close all;
 
-%% 0. PATH SETUP
-% -------------------------------------------------------------------------
+%% 0. PATH SETUP E COSTANTI FISICHE
 currentDir = fileparts(mfilename('fullpath'));
 funcFolder = fullfile(currentDir, '..', '..', 'lab');
-
 if exist(funcFolder, 'dir')
     addpath(genpath(funcFolder));
-else
-    warning('Warning: Functions folder not found at: %s', funcFolder);
 end
 
-%% 1. PHYSICAL CONSTANTS & CONVERSION FACTORS
-% -------------------------------------------------------------------------
-% Fundamental masses and dimensions
-M_sun   = 1.989e30;       % [kg] Mass of the Sun
-M_earth = 5.972e24;       % [kg] Mass of the Earth
-M_nyx   = 1.0472e12;      % [kg] Mass of Asteroid 3908 Nyx
-D_nyx   = 1.0;            % [km] Diameter of 3908 Nyx
-AU      = 149597870.7;    % [km] Astronomical Unit
+% Costanti
+mu = 398600.4418;       % [km^3/s^2] Parametro gravitazionale Terra
+R_earth = 6378.1363;    % [km] Raggio medio terrestre
+epsilon = deg2rad(23.45); % [rad] Obliquità dell'eclittica
 
-% Gravitational parameters [km^3/s^2]
-G        = 6.67430e-20;   
-mu_earth = G * M_earth;   
-mu_sun   = G * M_sun;     
-mu_nyx   = G * M_nyx;     
+opts_fsolve = optimoptions('fsolve', 'Display', 'off', ...
+    'FunctionTolerance', 1e-10, 'OptimalityTolerance', 1e-10, 'StepTolerance', 1e-10);
 
+%% 1. ORBITA DI PARCHEGGIO (Da Scenario 1)
+% Vettore di stato ECI iniziale
+ri = [-7090.590200; -5612.557300;  3948.902900];
+vi = [   5.698000;    -5.995000;     1.710000];
 
-%% 2. ORBITAL PARAMETERS & VECTORS
-% -------------------------------------------------------------------------
-% --- Earth Parking Orbit (Scenario 1 - ECI Frame) ---
-ri = [-7090.590200; -5612.557300; 3948.902900];
-vi = [5.698000; -5.995000; 1.710000];
-[a_pi, e_pi, i_pi, OM_pi, om_pi, th_pi] = car2par(ri, vi, mu_earth);
+[a_i, e_i, i_i, OM_i, om_i, ~] = car2par(ri, vi, mu);
 
-% --- Heliocentric Orbits (Scenario 2 - Ecliptic Frame) ---
-a_earth  = 1.4946e+08;           % [km] Semi-major axis Earth
-e_earth  = 0.016;                % [-] Eccentricity Earth
-th_earth = deg2rad(252.1890);    % [rad] True Anomaly Earth at departure
+%% 2. VELOCITÀ DI ECCESSO IPERBOLICO (Da Scenario 2)
+% Dati in sistema Eclittico
+V_Earth_Depart =  [ 2.9766,  29.5101, -0.0026];
+V_Trans_Depart =  [ 3.1273,  32.4459,  0.5897];
 
-a_nyx  = 1.927925 * AU;          % [km] Semi-major axis Nyx
-e_nyx  = 0.459072;               % [-] Eccentricity Nyx
-th_nyx = deg2rad(28.4244);       % [rad] True Anomaly Nyx at arrival
-
-% --- Coordinate Transformation (Ecliptic to ECI) ---
-epsilon = deg2rad(23.45);        % [rad] Obliquity of the ecliptic
-T_ecliptic_to_ECI = [1, 0, 0; 
-                     0, cos(epsilon), -sin(epsilon); 
-                     0, sin(epsilon),  cos(epsilon)];
-
-% --- Earth Departure (V_inf calculation) ---
-V_Earth        = [2.9768; 29.5101; -0.0026];
-V_Trans_Depart = [3.1275; 32.4458;  0.5897];
-
-v_inf_vec_earth = V_Trans_Depart - V_Earth; 
-v_inf_vec_earth_eci = T_ecliptic_to_ECI * v_inf_vec_earth; 
-v_inf_earth = norm(v_inf_vec_earth_eci); 
-
-% --- Nyx Arrival (V_inf calculation) ---
-V_Nyx           = [-25.2398;  23.2036; -1.0897];
-V_Trans_Arrival = [-22.5634;  20.5617;  0.3229];
-
-v_inf_vec_nyx = V_Trans_Arrival - V_Nyx; % Flipped to target reference
-v_inf_nyx = norm(v_inf_vec_nyx); 
+% V_inf in Eclittica
+v_inf_earth = V_Trans_Depart - V_Earth_Depart;
 
 
-%% 3. SPHERES OF INFLUENCE (SOI) 
-% -------------------------------------------------------------------------
-% Earth SOI
-p_earth = a_earth * (1 - e_earth^2);   
-R_earth_departure = p_earth / (1 + e_earth * cos(th_earth));
-earth_SOI = R_earth_departure * (M_earth / M_sun)^(2/5);  
+T_ECI_to_HELIO = [1, 0,            0; 
+             0, cos(epsilon), sin(epsilon); 
+             0, -sin(epsilon), cos(epsilon)];
 
-% Nyx SOI
-p_nyx = a_nyx * (1 - e_nyx^2);         
-R_nyx_arrival = p_nyx / (1 + e_nyx * cos(th_nyx));
-nyx_SOI = R_nyx_arrival * (M_nyx / M_sun)^(2/5);  
+v_inf_earth_eci = (T_ECI_to_HELIO' * v_inf_earth')';
+v_inf_norm = norm(v_inf_earth_eci);
+
+% Versore asintotico di uscita (r_inf)
+r_inf = (v_inf_earth_eci / v_inf_norm)';
+
+% Semiasse maggiore dell'iperbole (dalla conservazione dell'energia)
+a_h = -mu / (v_inf_norm^2);
 
 
-%% 4. ARRIVAL HYPERBOLA (ASTEROID NYX CAPTURE)
-% -------------------------------------------------------------------------
-a_h_nyx = -mu_nyx / (v_inf_nyx^2);
+%% 3. OTTIMIZZAZIONE DEL PUNTO DI INIEZIONE (Grid Search)
+fprintf('Inizio ottimizzazione del punto di iniezione (Grid Search su 360 gradi)...\n');
 
-r_ph_grid = linspace(D_nyx/2 + 0.1, nyx_SOI, 10000); 
-best_dv_nyx = inf;
+theta_val = 0 : deg2rad(1) : 2*pi;
+DV_values = inf(size(theta_val));
+exit_flags = zeros(size(theta_val));
 
-for rp = r_ph_grid
-    v_ocn = sqrt(mu_nyx / rp);
-    eh = 1 - (rp / a_h_nyx);
-    vph = sqrt(v_inf_nyx^2 + 2 * mu_nyx / rp);
+e_h_vals  = zeros(size(theta_val));
+i_H_vals  = zeros(size(theta_val));
+OM_H_vals = zeros(size(theta_val));
+om_H_vals = zeros(size(theta_val));
+
+for j = 1:length(theta_val)
     
-    deltaV = abs(v_ocn - vph);
+    th_in = theta_val(j);
     
-    if deltaV < best_dv_nyx
-        best_dv_nyx         = deltaV;
-        best_rp_nyx         = rp;
-        best_eh_nyx         = eh;
-        best_impact_n_nyx   = -a_h_nyx * sqrt(eh^2 - 1);
-        best_deflection_nyx = 2 * asin(1 / eh);
+    % Posizione e velocità sull'orbita di parcheggio
+    [rh_vec, v_park] = par2car(a_i, e_i, i_i, OM_i, om_i, th_in, mu);
+    r_h_norm = norm(rh_vec);
+    rh_ver = rh_vec / r_h_norm;
+    
+    % Angolo di separazione
+    alpha = acos(dot(rh_ver, r_inf));
+    
+    % Risoluzione per l'eccentricità
+    g = @(e) (a_h * (1 - e.^2)) ./ (1 + e .* cos(acos(-1 ./ e) - alpha)) - r_h_norm;
+    [e_h, ~, exit_flags(j)] = fsolve(g, 2, opts_fsolve);
+    
+    th_inf = acos(-1 / e_h);
+    th_h = th_inf - alpha;
+    rp_h = a_h * (1 - e_h^2);
+    
+    % Check Vincoli Fisici
+    if th_inf > pi/2 && th_inf < pi && rp_h > R_earth
+        
+        h_ver = cross(rh_ver, r_inf) / norm(cross(rh_ver, r_inf)); 
+        h_H_vec = sqrt(mu * a_h * (1 - e_h^2)) * h_ver; 
+        
+        control_orientamento = true;
+        while control_orientamento
+            
+            N_H_vec = cross([0; 0; 1], h_H_vec); 
+            N_H_vec = N_H_vec / norm(N_H_vec);
+            i_H = acos(h_H_vec(3) / norm(h_H_vec));
+            
+            if N_H_vec(2) >= 0
+                OM_H = acos(N_H_vec(1));
+            else
+                OM_H = 2*pi - acos(N_H_vec(1));
+            end
+            
+            cos_beta = dot(N_H_vec, rh_ver);
+            sin_beta = dot(cross(N_H_vec, rh_ver), (h_H_vec / norm(h_H_vec)));
+            beta = atan2(sin_beta, cos_beta);
+            om_H = beta - th_h;
+            
+            [~, v_hyp] = par2car(a_h, e_h, i_H, OM_H, om_H, th_h, mu);
+            
+            if dot(v_hyp, v_inf_earth_eci') < 0 
+                h_H_vec = -h_H_vec; 
+
+            else
+
+                DV_values(j) = norm(v_hyp - v_park);
+                e_h_vals(j)  = e_h;
+                i_H_vals(j)  = i_H;
+                OM_H_vals(j) = OM_H;
+                om_H_vals(j) = om_H;
+                
+                control_orientamento = false;
+            end
+        end
     end
-end 
-
-
-%% 5. DEPARTURE HYPERBOLA (EARTH ESCAPE 3D)
-% -------------------------------------------------------------------------
-a_h_earth = -mu_earth / (v_inf_earth^2);
-
-% Orbital properties at periapsis (Oberth effect)
-r_pi_earth = a_pi * (1 - e_pi); 
-v_pi_earth = sqrt(mu_earth / r_pi_earth) * sqrt(1 + e_pi); % Velocity of parking orbit
-
-% Velocity required at hyperbolic periapsis 
-vph_earth = sqrt(v_inf_earth^2 + 2 * mu_earth / r_pi_earth); % Hyperbolic velocity
-
-% --- 3D Vectorial Delta-V Calculation (Carnot Theorem) ---
-% 1. Angular momentum vectors (defining the two orbital planes)
-h_park = cross(ri, vi);
-h_hyperbola = cross(ri, v_inf_vec_earth_eci); 
-
-% 2. Plane change angle (misalignment)
-cos_Delta_i = dot(h_park, h_hyperbola) / (norm(h_park) * norm(h_hyperbola));
-Delta_i = acos(cos_Delta_i); 
-
-if Delta_i > pi/2
-    Delta_i = pi - Delta_i; % Ensure angle is between 0 and 90 degrees
 end
 
-% 3. Total Delta-V (Magnitude of the vectorial difference)
-deltaV_earth = sqrt(v_pi_earth^2 + vph_earth^2 - 2 * v_pi_earth * vph_earth * cos(Delta_i));
-% ---------------------------------------------------------
 
-% Geometric parameters to be determined by solving a non-linear system (using the hyperbolic trajectory equations)
-e_h_earth        = 1 - (r_pi_earth / a_h_earth); 
-impact_n_earth   = -a_h_earth * sqrt(e_h_earth^2 - 1);
-deflection_earth = 2 * asin(1 / e_h_earth);
+%% 4. ESTRAZIONE DELLA SOLUZIONE OTTIMALE (E DEL PERICENTRO)
+
+% 4a. Soluzione Ottima (Minimo globale del Delta-V)
+[min_DV, min_idx] = min(DV_values);
+ottimo_th_i = theta_val(min_idx);
+
+e_h_ott  = e_h_vals(min_idx);
+i_H_ott  = i_H_vals(min_idx);
+OM_H_ott = OM_H_vals(min_idx);
+om_H_ott = om_H_vals(min_idx);
+
+% Calcolo angoli geometrici per il report (Soluzione ottima)
+[rh_vec, ~] = par2car(a_i, e_i, i_i, OM_i, om_i, ottimo_th_i, mu);
+alpha_ott = acos(dot(rh_vec/norm(rh_vec), r_inf));
+th_inf_ott = acos(-1 / e_h_ott);
+th_h_ott = th_inf_ott - alpha_ott;
+r_h_norm = norm(rh_vec);
 
 
-%% 6. MISSION REPORT OUTPUT
-% -------------------------------------------------------------------------
-fprintf('\n=========================================================\n');
-fprintf('       PATCHED CONICS MULTI-FRAME ANALYSIS REPORT        \n');
-fprintf('=========================================================\n\n');
+% 4b. Soluzione al Pericentro (Indice 1, perché theta_val(1) = 0)
+DV_pericentro = DV_values(1);
+e_h_peri  = e_h_vals(1);
+i_H_peri  = i_H_vals(1);
+OM_H_peri = OM_H_vals(1);
+om_H_peri = om_H_vals(1);
 
-fprintf('--- SPHERES OF INFLUENCE ---\n');
-fprintf(' Earth SOI Radius : %10.2f km\n', earth_SOI);
-fprintf(' Nyx SOI Radius   : %10.2f km\n\n', nyx_SOI);
 
-fprintf('--- DEPARTURE (EARTH ESCAPE 3D) ---\n');
-fprintf(' V_inf Magnitude  : %10.4f km/s\n', v_inf_earth);
-fprintf(' Plane Sfasamento : %10.2f degrees\n', rad2deg(Delta_i));
-fprintf(' Optimal Periapsis: %10.2f km\n', r_pi_earth);
-fprintf(' Eccentricity     : %10.4f\n', e_h_earth);
-fprintf(' Impact Parameter : %10.2f km\n', impact_n_earth);
-fprintf(' Deflection Angle : %10.2f degrees\n', rad2deg(deflection_earth));
-fprintf(' --------------------------------------\n');
-fprintf(' TOTAL DELTA-V    : %10.4f km/s\n\n', deltaV_earth);
+%% 5. STAMPA DEL REPORT DELLA MISSIONE
+fprintf('\n=========================================================================\n');
+fprintf('          MISSION ANALYSIS REPORT: EARTH DEPARTURE (SCENARIO 3)          \n');
+fprintf('                      Non-Coplanar Escape Hyperbola                      \n');
+fprintf('=========================================================================\n\n');
 
-fprintf('--- ARRIVAL (NYX CAPTURE) ---\n');
-fprintf(' V_inf Magnitude  : %10.4f km/s\n', v_inf_nyx);
-fprintf(' Optimal Periapsis: %10.2f km\n', best_rp_nyx);
-fprintf(' Eccentricity     : %10.4e\n', best_eh_nyx);
-fprintf(' Impact Parameter : %10.2f km\n', best_impact_n_nyx);
-fprintf(' Deflection Angle : %10.2e degrees\n', rad2deg(best_deflection_nyx));
-fprintf(' --------------------------------------\n');
-fprintf(' TOTAL DELTA-V    : %10.4f km/s\n', best_dv_nyx);
-fprintf('\n=========================================================\n');
+fprintf(' GEOMETRIA DELL''INIEZIONE (Punto di Manovra)\n');
+fprintf(' -------------------------------------------------------------------------\n');
+fprintf('  Anomalia iniezione in orbita (th_in)   | %10.2f deg\n', rad2deg(ottimo_th_i));
+fprintf('  Distanza radiale dal centro (r_H)      | %10.2f km\n', r_h_norm);
+fprintf('  Angolo di raccordo sull''iperbole (th_H)| %10.2f deg\n', rad2deg(th_h_ott));
+fprintf('\n');
+
+fprintf(' PARAMETRI IPERBOLE DI FUGA OTTIMIZZATA (Post-Manovra)\n');
+fprintf(' -------------------------------------------------------------------------\n');
+fprintf('  Semiasse maggiore (a_H)                | %10.2f km\n', a_h);
+fprintf('  Eccentricita (e_H)                     | %10.6f\n', e_h_ott);
+fprintf('  Inclinazione (i_H)                     | %10.2f deg\n', rad2deg(i_H_ott));
+fprintf('  RAAN (OM_H)                            | %10.2f deg\n', rad2deg(OM_H_ott));
+fprintf('  Arg. del Pericentro (om_H)             | %10.2f deg\n', rad2deg(om_H_ott));
+fprintf('  Anomalia asintotica (th_inf)           | %10.2f deg\n', rad2deg(th_inf_ott));
+fprintf('  Eccesso Iperbolico (V_inf)             | %10.4f km/s\n\n', v_inf_norm);
+
+fprintf(' COSTO DI MANOVRA (Delta-V)\n');
+fprintf(' -------------------------------------------------------------------------\n');
+fprintf('  Costo iniezione al pericentro          | %8.4f km/s\n', DV_pericentro);
+fprintf('  Costo iniezione ottimizzata            | %8.4f km/s\n', min_DV);
+fprintf('  ------------------------------------------------------------------------\n');
+fprintf('  RISPARMIO NETTO OTTENUTO               | %8.4f km/s\n', abs(DV_pericentro - min_DV));
+
+%% 6. PREPARAZIONE DATI PER IL PLOT 3D NON COMPLANARE
+% Struttura per l'orbita di parcheggio
+Park.a = a_i;
+Park.e = e_i;
+Park.i = i_i;
+Park.OM = OM_i;
+Park.om = om_i;
+
+% Struttura per l'iperbole generata al Pericentro
+Hyp_peri.a = a_h;
+Hyp_peri.e = e_h_peri;       
+Hyp_peri.i = i_H_peri;       
+Hyp_peri.OM = OM_H_peri;     
+Hyp_peri.om = om_H_peri;     
+Hyp_peri.th_in = 0;          
+
+% Struttura per l'iperbole ottima
+Hyp_opt.a = a_h;
+Hyp_opt.e = e_h_ott;
+Hyp_opt.i = i_H_ott;         
+Hyp_opt.OM = OM_H_ott;       
+Hyp_opt.om = om_H_ott;       
+Hyp_opt.th_in = ottimo_th_i;
+
+scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth);

@@ -36,7 +36,7 @@ om_f = deg2rad(126.66);             % Argument of Perihelion [rad]
 %OM_f = deg2rad(49.57854);           % Longitude of Ascending Node
 %om_f = deg2rad(286.502);           % Argument of Perihelion [rad]
 
-%% 3. DEPARTURE DATA: EARTH (INITIAL ORBIT)
+%% 3. DEPARTURE DATA: EARTH HELIOCENTRIC ORBIT (INITIAL ORBIT)
 a_i  = 1.4946e+08;                  % Semi-major axis [km]
 e_i  = 0.016;                       % Eccentricity [-]
 i_i  = 9.1920e-05;                  % Inclination [rad]
