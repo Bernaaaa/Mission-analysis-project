@@ -152,12 +152,30 @@ i_H_peri  = i_H_vals(1);
 OM_H_peri = OM_H_vals(1);
 om_H_peri = om_H_vals(1);
 
+% Calcolo angoli geometrici per la soluzione al pericentro
+[rh_vec, ~] = par2car(a_i, e_i, i_i, OM_i, om_i, 0, mu);
+alpha_peri = acos(dot(rh_vec/norm(rh_vec), r_inf));
+th_inf_peri = acos(-1 / e_h_peri);
+th_h_peri = th_inf_peri - alpha_peri;
+
 
 %% 5. STAMPA DEL REPORT DELLA MISSIONE
 fprintf('\n=========================================================================\n');
 fprintf('          MISSION ANALYSIS REPORT: EARTH DEPARTURE (SCENARIO 3)          \n');
 fprintf('                      Non-Coplanar Escape Hyperbola                      \n');
 fprintf('=========================================================================\n\n');
+
+fprintf(' INIEZIONE AL PERICENTRO (Punto di Manovra)\n');
+fprintf(' -------------------------------------------------------------------------\n');
+fprintf('  Anomalia iniezione in orbita (th_in)   | %10.2f deg\n', rad2deg(0));
+fprintf('  Semiasse maggiore (a_H)                | %10.2f km\n', a_h);
+fprintf('  Eccentricita (e_H)                     | %10.6f\n', e_h_peri);
+fprintf('  Inclinazione (i_H)                     | %10.2f deg\n', rad2deg(i_H_peri));
+fprintf('  RAAN (OM_H)                            | %10.2f deg\n', rad2deg(OM_H_peri));
+fprintf('  Arg. del Pericentro (om_H)             | %10.2f deg\n', rad2deg(om_H_peri+2*pi));
+fprintf('  Anomalia asintotica (th_inf)           | %10.2f deg\n', rad2deg(th_inf_peri));
+fprintf('  Anomalia sull''iperbole (th_H)          | %10.2f deg\n', rad2deg(th_h_peri));
+fprintf('  Eccesso Iperbolico (V_inf)             | %10.4f km/s\n\n', v_inf_norm);
 
 fprintf(' GEOMETRIA DELL''INIEZIONE (Punto di Manovra)\n');
 fprintf(' -------------------------------------------------------------------------\n');

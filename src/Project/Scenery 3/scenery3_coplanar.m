@@ -28,7 +28,7 @@ R_earth = 6378.137;       % [km] Earth's equatorial radius
 
 % Gravitational parameters (Converted to km-based units: km^3 / (kg * s^2))
 G        = 6.67430e-20;   
-mu_earth = G * M_earth;   % [km^3/s^2] Earth's gravitational parameter
+mu_earth = 398600.4418;   % [km^3/s^2] Earth's gravitational parameter
 mu_sun   = G * M_sun;     % [km^3/s^2] Sun's gravitational parameter
 mu_nyx   = G * M_nyx;     % [km^3/s^2] Nyx's gravitational parameter
 
@@ -81,7 +81,7 @@ v_inf_nyx = 4.0173; % [km/s]
 a_h_nyx = -mu_nyx / (v_inf_nyx^2);
 
 % Define search grid for periapsis radius (From surface to SOI edge)
-r_ph_grid = linspace((D_nyx / 2) + .1, nyx_SOI, 1000);
+r_ph_grid = linspace((D_nyx / 2) + 1, nyx_SOI, 1000);
 best_dv_nyx = inf;
 
 % Find the optimal periapsis radius that minimizes capture Delta-V
@@ -112,7 +112,9 @@ end
 %% 5. DEPARTURE HYPERBOLA (EARTH ESCAPE)
 % -------------------------------------------------------------------------
 % Based on Scenery 2, the hyperbolic excess velocity at departure is known
-v_inf_earth = 2.9986; % [km/s]
+V_Earth_Depart =  [ 2.9766,  29.5101, -0.0026];
+V_Trans_Depart =  [ 3.1273,  32.4459,  0.5897];
+v_inf_earth = norm(V_Trans_Depart - V_Earth_Depart); % [km/s]
 
 % Hyperbola semi-major axis
 a_h_earth = -mu_earth / (v_inf_earth^2);
@@ -148,6 +150,7 @@ fprintf('Nyx SOI at arrival     : %10.4f km\n\n', nyx_SOI);
 fprintf('--- PHASE 1: EARTH DEPARTURE ---\n');
 fprintf('Maneuver Delta-V       : %10.4f km/s\n', deltaV_earth);
 fprintf('Maneuver Altitude (rp) : %10.4f km\n', r_pi_earth);
+fprintf('Hyperbola Semi-Major Axis : %10.4f km\n', a_h_earth);
 fprintf('Hyperbola Eccentricity : %10.4f\n', e_h_earth);
 fprintf('Deflection Angle       : %10.4f deg\n', rad2deg(deflection_earth));
 fprintf('Impact Parameter       : %10.4f km\n\n', impact_n_earth);
@@ -155,6 +158,7 @@ fprintf('Impact Parameter       : %10.4f km\n\n', impact_n_earth);
 fprintf('--- PHASE 3: NYX ARRIVAL (CAPTURE) ---\n');
 fprintf('Minimum Delta-V        : %10.4f km/s\n', best_dv_nyx);
 fprintf('Optimal Altitude (rp)  : %10.4f km\n', best_rp_nyx);
+fprintf('Hyperbola Semi-Major Axis : %e km\n', a_h_nyx);
 fprintf('Hyperbola Eccentricity : %10.4e\n', best_eh_nyx);
 fprintf('Deflection Angle       : %10.4e deg\n', rad2deg(best_deflection_nyx));
 fprintf('Impact Parameter       : %10.4f km\n', best_impact_n_nyx);
