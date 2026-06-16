@@ -65,6 +65,9 @@ function [best_th_earth, best_th_nyx, best_om_tn, best_dv] = grid_search_s2(a_i,
                 th_i_tn = alpha1 - om_tn_val;               % Argument of latitude of the initial position in the perifocal frame of the transfer orbit
                 th_f_tn = alpha2 - om_tn_val;               % Argument of latitude of the final position in the perifocal frame of the transfer orbit
 
+                if th_i_tn < 0, th_i_tn = th_i_tn + 2*pi; end
+                if th_f_tn < 0, th_f_tn = th_f_tn + 2*pi; end
+
                 num_e = r2_n_current - r1_n_current;
                 den_e = r1_n_current*cos(th_i_tn) - r2_n_current*cos(th_f_tn);
                 e_t = num_e / den_e;                        % Eccentricity of the transfer orbit calculated from the geometry of the initial and final positions and the chosen argument of pericenter

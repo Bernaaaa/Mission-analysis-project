@@ -101,6 +101,9 @@ while alpha2 < alpha1, alpha2 = alpha2 + 2*pi; end
 th_i_t = alpha1 - om_tn_opt;                % True anomaly at departure in the transfer orbit
 th_f_t = alpha2 - om_tn_opt;                % True anomaly at arrival in the transfer orbit
 
+if th_i_t < 0, th_i_t = th_i_t + 2*pi; end
+if th_f_t < 0, th_f_t = th_f_t + 2*pi; end
+
 r1_n = norm(r1_opt);
 r2_n = norm(r2_opt);
 e_t  = (r2_n - r1_n) / (r1_n*cos(th_i_t) - r2_n*cos(th_f_t));   % Eccentricity of the transfer orbit
@@ -118,7 +121,7 @@ v2t = RT_ELIO_to_Plane' * (R_z_om' * v2t_pf);                                   
 
 %% 7. FINAL RESULTS DISPLAY
 % Calculate Time of Flight using your TOF_M function
-TOF_sec = TOF_M_NoPrint(a_t, e_t, th_i_t, th_f_t, mu);                  
+TOF_sec = TOF_M_NoPrint(a_t, e_t, th_i_t, th_f_t, mu);
 TOF_days = TOF_sec / day2sec;
 
 separator = repmat('=', 1, 55);

@@ -50,6 +50,9 @@ function DV = mission_transfer_nyx(x, a_i, e_i, i_i, OM_i, om_i, a_f, e_f, i_f, 
     th_i_tn = alpha1 - om_tn_val;
     th_f_tn = alpha2 - om_tn_val;
 
+    if th_i_tn < 0, th_i_tn = th_i_tn + 2*pi; end
+    if th_f_tn < 0, th_f_tn = th_f_tn + 2*pi; end
+
     num_e = r2_n - r1_n;
     den_e = r1_n*cos(th_i_tn) - r2_n*cos(th_f_tn);
     e_t = num_e / den_e;

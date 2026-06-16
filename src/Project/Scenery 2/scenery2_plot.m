@@ -4,11 +4,16 @@ function scenery2_plot(Earth, Nyx, Trans, Const)
     palette.nyx   = [0.85, 0.33, 0.1]; 
     palette.trans = [0.7, 0, 1]; 
 
+    thi_t = Const.th_i_t;
+    if thi_t > Const.th_f_t
+        thi_t = thi_t - 2*pi;
+    end
+    
     % Generazione coordinate (AU)
     R_E = get_coords(Earth, linspace(0, 2*pi, 800), Const.AU);
     R_N = get_coords(Nyx,   linspace(0, 2*pi, 800), Const.AU);
     R_T_full = get_coords(Trans, linspace(0, 2*pi, 800), Const.AU);
-    R_T_arc  = get_coords(Trans, linspace(Const.th_i_t, Const.th_f_t, 400), Const.AU);
+    R_T_arc  = get_coords(Trans, linspace(thi_t, Const.th_f_t, 400), Const.AU);
 
     % --- PLOT 1: GEOMETRIA COMPLETA ---
     start_fig('Mission Geometry');
