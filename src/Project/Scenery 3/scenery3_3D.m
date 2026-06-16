@@ -25,7 +25,7 @@ opts_fsolve = optimoptions('fsolve', 'Display', 'off', ...
 ri = [-7090.590200; -5612.557300;  3948.902900];
 vi = [   5.698000;    -5.995000;     1.710000];
 
-[a_i, e_i, i_i, OM_i, om_i, ~] = car2par(ri, vi, mu);
+[a_i, e_i, i_i, OM_i, om_i, theta_iniziale] = car2par(ri, vi, mu);
 
 %% 2. VELOCITÀ DI ECCESSO IPERBOLICO (Da Scenario 2)
 % Dati in sistema Eclittico
@@ -144,6 +144,8 @@ th_inf_ott = acos(-1 / e_h_ott);
 th_h_ott = th_inf_ott - alpha_ott;
 r_h_norm = norm(rh_vec);
 
+deltaT = TOF_M_NoPrint(a_i, e_i, theta_iniziale, ottimo_th_i, mu);
+
 
 % 4b. Soluzione al Pericentro (Indice 1, perché theta_val(1) = 0)
 DV_pericentro = DV_values(1);
@@ -190,9 +192,10 @@ fprintf('  Semiasse maggiore (a_H)                | %10.2f km\n', a_h);
 fprintf('  Eccentricita (e_H)                     | %10.6f\n', e_h_ott);
 fprintf('  Inclinazione (i_H)                     | %10.2f deg\n', rad2deg(i_H_ott));
 fprintf('  RAAN (OM_H)                            | %10.2f deg\n', rad2deg(OM_H_ott));
-fprintf('  Arg. del Pericentro (om_H)             | %10.2f deg\n', rad2deg(om_H_ott));
+fprintf('  Arg. del Pericentro (om_H)             | %10.2f deg\n', rad2deg(om_H_ott+2*pi));
 fprintf('  Anomalia asintotica (th_inf)           | %10.2f deg\n', rad2deg(th_inf_ott));
 fprintf('  Eccesso Iperbolico (V_inf)             | %10.4f km/s\n\n', v_inf_norm);
+fprintf('  Tempo di arrivo al punto di iniezione  | %10.2f s\n', deltaT);
 
 fprintf(' COSTO DI MANOVRA (Delta-V)\n');
 fprintf(' -------------------------------------------------------------------------\n');
