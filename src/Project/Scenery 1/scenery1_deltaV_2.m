@@ -7,7 +7,7 @@ close all; clear; clc;
 %% --- SETUP PERCORSI UNIVERSALE ---
 currentDir = fileparts(mfilename('fullpath'));
 
-funcFolder = fullfile(currentDir, '..', 'src', 'lab' );
+funcFolder = fullfile(currentDir, '..', '..', 'lab' );
 
 if exist(funcFolder, 'dir')
     addpath(genpath(funcFolder));
