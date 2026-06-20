@@ -29,8 +29,8 @@ hBar = bar(data, 'EdgeColor', 'none');
 % Poiché hBar è un oggetto unico, per colorare le barre in modo differenziato 
 % dobbiamo attivare la proprietà 'CData' (Color Data) faccia per faccia.
 hBar.FaceColor = 'flat'; 
-hBar.CData(1, :) = [0.20, 0.45, 0.65]; % Colore per la Barra 1 (Blu)
-hBar.CData(2, :) = [0.85, 0.45, 0.25]; % Colore per la Barra 2 (Arancione)
+hBar.CData(1, :) = [1.0, 0.1, 0.1] ; % Colore per l'iniezione al pericentro (Rosso)
+hBar.CData(2, :) = [0.0, 0.4, 1.0]; % Colore per l'iniezione nel punto ottimale (Blu)
 
 %% 7. CONFIGURAZIONE ASSI (2 Gruppi esatti)
 set(gca, 'XTick', 1:2);
@@ -38,21 +38,21 @@ set(gca, 'XTick', 1:2);
 % Usiamo sprintf per inserire la variabile numerica 'th' all'interno della stringa LaTeX
 etichetta_ottima = sprintf('$\\theta = %.2f^\\circ$', th); 
 
-set(gca, 'XTickLabel', {'$\theta = 0^\circ$', etichetta_ottima}, ...
+set(gca, 'XTickLabel', {'$\theta = 0^\circ $', etichetta_ottima}, ...
          'TickLabelInterpreter', 'latex', 'FontSize', 11);
 
 ylabel('$\Delta V$ [km/s]', 'Interpreter', 'latex', 'FontSize', 12);
-title('Comparison of Transfer Strategies', 'FontSize', 13, 'FontWeight', 'bold');
+title('$\Delta V$ Comparison for Injection Point in Scenario 3', 'Interpreter', 'latex', 'FontSize', 13, 'FontWeight', 'bold');
 
 %% 8. RISOLUZIONE DEL WARNING DELLA LEGENDA
 % Creiamo due grafici invisibili (finti) sullo sfondo che hanno lo stesso 
 % identico colore delle barre. Li useremo SOLO per ingannare la legenda.
-dummy1 = bar(nan, 'FaceColor', [0.20, 0.45, 0.65], 'EdgeColor', 'none');
-dummy2 = bar(nan, 'FaceColor', [0.85, 0.45, 0.25], 'EdgeColor', 'none');
+dummy1 = bar(nan, 'FaceColor', [1.0, 0.1, 0.1], 'EdgeColor', 'none');
+dummy2 = bar(nan, 'FaceColor', [0.0, 0.4, 1.0], 'EdgeColor', 'none');
 
 % Ora passiamo alla legenda i due oggetti "dummy" specchio. Zero warning!
 lgd = legend([dummy1, dummy2], {'Pericenter Burn', 'Optimal Burn'}, ...
-    'Location', 'eastoutside');
+    'Location', 'northeastoutside');
 lgd.FontSize = 10;
 lgd.Box = 'on';
 

@@ -134,12 +134,12 @@ p9 = plot([best_ra ./ 1e+5, best_ra ./ 1e+5], [0, 4.5], '--', 'Color', [0.35, 0.
 hold on
 p1 = plot(ra_range ./ 1e+5, DV_map(:, 1), 'Color', colore_main, 'LineWidth', 2, 'DisplayName', '$\Delta V$ total');
 
-p2 = plot(ra_range ./ 1e+5, DV_val1(:, 1), 'Color', colori_contributi(1,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 1° impuls');
-p3 = plot(ra_range ./ 1e+5, DV_val2(:, 1), 'Color', colori_contributi(2,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 2° impuls');
+p2 = plot(ra_range ./ 1e+5, DV_val1(:, 1), 'Color', colori_contributi(1,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 1° impulse');
+p3 = plot(ra_range ./ 1e+5, DV_val2(:, 1), 'Color', colori_contributi(2,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 2° impulse');
 p4 = plot(ra_range ./ 1e+5, DV_val3(:, 1), 'Color', colori_contributi(3,:), 'LineWidth', 2, 'DisplayName', 'Plane Change');
 p5 = plot(ra_range ./ 1e+5, DV_val4(:, 1), 'Color', colori_contributi(4,:), 'LineWidth', 2, 'DisplayName', 'Argument Pericenter Adjustment');
-p6 = plot(ra_range ./ 1e+5, DV_val5(:, 1), 'Color', colori_contributi(5,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 3° impuls');
-p7 = plot(ra_range ./ 1e+5, DV_val6(:, 1), 'Color', colori_contributi(6,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 4° impuls');
+p6 = plot(ra_range ./ 1e+5, DV_val5(:, 1), 'Color', colori_contributi(5,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 3° impulse');
+p7 = plot(ra_range ./ 1e+5, DV_val6(:, 1), 'Color', colori_contributi(6,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 4° impulse');
 p8 = plot(best_ra ./ 1e+5, best_dv, ...
     'LineStyle', 'none', ...
     'Marker', 'o', ...              % Cerchio
@@ -165,12 +165,12 @@ grid on; axis tight;
 figure()
 plot(e_range, DV_map(L, :), 'Color', colore_main, 'LineWidth', 2, 'DisplayName', '$\Delta V$ total');
 hold on
-plot(e_range, DV_val1(L, :), 'Color', colori_contributi(1,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 1° impuls');
-plot(e_range, DV_val2(L, :), 'Color', colori_contributi(2,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 2° impuls');
+plot(e_range, DV_val1(L, :), 'Color', colori_contributi(1,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 1° impulse');
+plot(e_range, DV_val2(L, :), 'Color', colori_contributi(2,:), 'LineWidth', 2, 'DisplayName', 'Departing Bitangent 2° impulse');
 plot(e_range, DV_val3(L, :), 'Color', colori_contributi(3,:), 'LineWidth', 2, 'DisplayName', 'Plane Change');
 plot(e_range, DV_val4(L, :), 'Color', colori_contributi(4,:), 'LineWidth', 2, 'DisplayName', 'Argument Pericenter Adjustment.');
-plot(e_range, DV_val5(L, :), 'Color', colori_contributi(5,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 1° impuls');
-plot(e_range, DV_val6(L, :), 'Color', colori_contributi(6,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 42 impuls');
+plot(e_range, DV_val5(L, :), 'Color', colori_contributi(5,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 1° impulse');
+plot(e_range, DV_val6(L, :), 'Color', colori_contributi(6,:), 'LineWidth', 2, 'DisplayName', 'Arriving Bitangent 2° impulse');
 
 plot(best_e, best_dv, ...
     'LineStyle', 'none', ...
@@ -182,10 +182,36 @@ plot(best_e, best_dv, ...
     'DisplayName', 'Optimal Point');
 xlabel('$e$', 'FontSize', 12);
 ylabel('$\Delta V [km/s]$', 'FontSize', 12);
-lgd = legend('show', 'Location', 'eastoutside');
+lgd = legend('show', 'Location', 'northeastoutside');
     lgd.FontSize = 10;
     lgd.Title.String = '$\Delta V$ contributions for each impulse';
     lgd.Title.Interpreter = 'latex';
     lgd.Box = 'on';
 title('$\Delta V(e, r_a = 315000km)$', 'FontSize', 14);
 grid on; axis tight;
+
+DV_const = DV_val1(L, :) + DV_val2(L, :) + DV_val3(L, :)  + DV_val5(L, :) + DV_val6(L, :);
+figure()
+plot(e_range, DV_map(L, :), 'Color', colore_main, 'LineWidth', 2, 'DisplayName', '$\Delta V$ total');
+hold on
+plot(e_range, DV_const, 'Color',[0.0, 0.4, 1.0], 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'Other maneuvers')
+plot(e_range, DV_val4(L, :), 'Color', colori_contributi(4, :), 'Linewidth', 2, 'DisplayName', 'Argument Pericenter Adjustment.')
+plot(best_e, best_dv, ...
+    'LineStyle', 'none', ...
+    'Marker', 'o', ...              % Cerchio
+    'MarkerSize', 9, ...           % Dimensione
+    'LineWidth', 2.0, ...           % Spessore del bordo
+    'MarkerEdgeColor', [0.2 0.2 0.2], ... % Bordo grigio scuro
+    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento arancio vivido 
+    'DisplayName', 'Optimal Point');
+xlabel('$e$', 'FontSize', 12);
+ylabel('$\Delta V [km/s]$', 'FontSize', 12);
+lgd = legend('show', 'Location', 'northeastoutside');
+    lgd.FontSize = 10;
+    lgd.Title.String = '$\Delta V$ contributions for each impulse';
+    lgd.Title.Interpreter = 'latex';
+    lgd.Box = 'on';
+title('$\Delta V(e, r_a = 315000km)$', 'FontSize', 14);
+grid on; axis tight;
+
+
