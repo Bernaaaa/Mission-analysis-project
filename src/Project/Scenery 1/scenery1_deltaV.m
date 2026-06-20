@@ -123,7 +123,13 @@ fprintf('%-20s | %-15.4f | %-15.4f\n', 'Nodo (OM)', OM, OM_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Pericentro (om)', om, om_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Anomalia (th)', th, th_f);
 
-% --- 2. LOG MANOVRE ---
+% --- 2. PARAMETRI ORBITA INTERMEDIA ---
+fprintf('\n-------------------------------------------------------------------------\n');
+fprintf('%-20s | %-15.2f\n', 'Optimal eccentricity', best_e)
+fprintf('%-20s | %-15.2f\n', 'Optimal apocenter radius', best_ra)
+fprintf('-------------------------------------------------------------------------\n');
+
+% --- 3. LOG MANOVRE ---
 fprintf('\n%-30s | %-15s | %-12s\n', 'Manovra', 'Anomalia (rad)', 'DeltaV (km/s)');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Departure (BT1-PA)', 0, abs(DeltaV1BT) + abs(DeltaV2BT));
@@ -131,7 +137,7 @@ fprintf('%-30s | %-15.4f | %-12.4f\n', 'Plane Change (Optimal DV)', theta_plane_
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Arg. Pericenter Adj.', thi_omega_blt(1), abs(DeltaV_omega_blt));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Arrival (BT2-AP)', 0, abs(DeltaV3BT) + abs(DeltaV4BT));
 
-% --- 3. SUMMARY FINALE ---
+% --- 4. SUMMARY FINALE ---
 fprintf('\n=========================================================================\n');
 fprintf('TOTALE DELTA-V          : %10.4f km/s\n', DeltaV_Totale_BLT);
 fprintf('TEMPO TOTALE (TOF)      : %d d, %02d h, %02d m, %02d s\n', days, hours, minutes, seconds);
