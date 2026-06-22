@@ -144,6 +144,9 @@ th_inf_ott = acos(-1 / e_h_ott);
 th_h_ott = th_inf_ott - alpha_ott;
 r_h_norm = norm(rh_vec);
 
+deflection_angle = 2 * asin(1 / e_h_ott);
+impact_parameter = -a_h * sqrt(e_h_ott^2 - 1);
+
 deltaT = TOF_M_NoPrint(a_i, e_i, theta_iniziale, ottimo_th_i, mu);
 
 
@@ -195,6 +198,9 @@ fprintf('  RAAN (OM_H)                            | %10.2f deg\n', rad2deg(OM_H_
 fprintf('  Arg. del Pericentro (om_H)             | %10.2f deg\n', rad2deg(om_H_ott+2*pi));
 fprintf('  Anomalia asintotica (th_inf)           | %10.2f deg\n', rad2deg(th_inf_ott));
 fprintf('  Eccesso Iperbolico (V_inf)             | %10.4f km/s\n\n', v_inf_norm);
+fprintf('  Raggio di pericentro (rp_H)            | %10.2f km\n', a_h * (1 - e_h_ott));
+fprintf('  Angolo di deflessione (delta)          | %10.2f deg\n', rad2deg(deflection_angle));
+fprintf('  Parametro d''impatto (b)                | %10.2f km\n', impact_parameter);
 fprintf('  Tempo di arrivo al punto di iniezione  | %10.2f s\n', deltaT);
 
 fprintf(' COSTO DI MANOVRA (Delta-V)\n');

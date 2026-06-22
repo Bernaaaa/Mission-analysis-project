@@ -41,7 +41,7 @@ function scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth)
         for j=1:vec_size
             R_park(:,j) = par2car(Park.a, Park.e, Park.i, Park.OM, Park.om, th_park(j), mu); 
         end
-        plot3(R_park(1,:), R_park(2,:), R_park(3,:), '-', 'Color', c_park, 'LineWidth', lw_arc, 'DisplayName', 'Orbita di Parcheggio');
+        plot3(R_park(1,:), R_park(2,:), R_park(3,:), '-', 'Color', c_park, 'LineWidth', lw_arc, 'DisplayName', 'Park Orbit');
 
         % 3. Iperbole di Fuga (Tracciata nel suo piano specifico)
         th_inf_H = acos(-1 / Hyp_data.e);
@@ -50,12 +50,12 @@ function scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth)
         for j=1:vec_size
             R_hyp(:,j) = par2car(Hyp_data.a, Hyp_data.e, Hyp_data.i, Hyp_data.OM, Hyp_data.om, th_hyp(j), mu); 
         end
-        plot3(R_hyp(1,:), R_hyp(2,:), R_hyp(3,:), '-', 'Color', c_hyp, 'LineWidth', lw_hyp, 'DisplayName', 'Iperbole di Fuga');
+        plot3(R_hyp(1,:), R_hyp(2,:), R_hyp(3,:), '-', 'Color', c_hyp, 'LineWidth', lw_hyp, 'DisplayName', 'Hyperbola of Escape');
 
         % 4. Punto di Iniezione (Manovra)
         R_inj = par2car(Park.a, Park.e, Park.i, Park.OM, Park.om, Hyp_data.th_in, mu);
         plot3(R_inj(1), R_inj(2), R_inj(3), 'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', c_man, ...
-              'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', 'Punto Iniezione ($\Delta v$)');
+              'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', 'Injection Point ($\Delta v$)');
 
         % Estetica e Telecamera
         lim_E = max(vecnorm(R_park)) * 1.5; 
@@ -69,6 +69,6 @@ function scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth)
         lgd.Box = 'on';
     end
 
-    draw_scenario(Hyp_peri, 'Phase 1: Earth Escape (Iniezione al Pericentro)');
-    draw_scenario(Hyp_opt,  'Phase 1: Earth Escape (Iniezione Ottima)');
+    draw_scenario(Hyp_peri, 'Phase 1: Earth Escape (Pericenter Injection)');
+    draw_scenario(Hyp_opt,  'Phase 1: Earth Escape (Optimal Injection)');
 end

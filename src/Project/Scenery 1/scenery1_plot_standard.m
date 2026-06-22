@@ -101,7 +101,7 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     
     view(145, 20);
     
-    lgd = legend('show', 'Location', 'eastoutside');
+    lgd = legend('show', 'Location', 'best');
     lgd.FontSize = 10;
     lgd.Title.String = 'Mission Phases \& Maneuvers';
     lgd.Title.Interpreter = 'latex';
