@@ -63,7 +63,7 @@ function draw_sun_textured()
                'FaceLighting', 'none', ...
                'HandleVisibility', 'off');
     catch
-        % Fallback se manca il file: sfera gialla semplice
+        % se manca il file: sfera gialla semplice
         surface(x*r_sun, y*r_sun, z*r_sun, 'FaceColor', [1 0.8 0], 'EdgeColor', 'none');
     end
 end

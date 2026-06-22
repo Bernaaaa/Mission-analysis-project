@@ -16,9 +16,7 @@ function scenery3_plot_coplanar(E, N)
     mk_sz  = 7;
     vec_size = 750; % Risoluzione archi
 
-    % =========================================================================
     % FIGURA 1: EARTH DEPARTURE
-    % =========================================================================
     figure('Color', 'w', 'WindowState', 'maximized', 'Name', 'Phase 1: Earth Escape');
     hold on; grid on; box on; axis equal;
     ax1 = gca; 
@@ -50,7 +48,6 @@ function scenery3_plot_coplanar(E, N)
 
     % 3. Iperbole di Fuga
     th_inf_E = acos(-1 / E.e_hyp);
-    %th_inf_E = 2*asin(1/E.e_hyp);
     th_hyp = linspace(-th_inf_E*0.85, th_inf_E*0.85, vec_size); 
     R_hyp = zeros(3, vec_size);
     R_departure = par2car(E.a_hyp, E.e_hyp, E.i, E.OM, E.om, 0, E.mu);
@@ -66,7 +63,6 @@ function scenery3_plot_coplanar(E, N)
     plot3(R_departure(1), R_departure(2), R_departure(3), 'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', c_man, ...
           'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', '$\Delta V$ Departure');
 
-    % Estetica Asse Terra
     lim_E = max(vecnorm(R_park)) * 1.1; 
     xlim([-lim_E, lim_E]); ylim([-lim_E, lim_E]); zlim([-lim_E, lim_E]);
     xlabel('$X$ [km]', 'FontSize', 12); ylabel('$Y$ [km]', 'FontSize', 12); zlabel('$Z$ [km]', 'FontSize', 12);
@@ -75,16 +71,14 @@ function scenery3_plot_coplanar(E, N)
     lgd1 = legend('show', 'Location', 'northeast'); 
     lgd1.Box = 'on';
 
-    % =========================================================================
     % FIGURA 2: NYX ARRIVAL
-    % =========================================================================
     figure('Color', 'w', 'WindowState', 'maximized', 'Name', 'Phase 3: Nyx Capture');
     hold on; grid on; box on; axis equal;
     ax2 = gca; 
     ax2.GridAlpha = 0.15; 
     ax2.MinorGridAlpha = 0.05;
 
-    % Asteroide (Visual Scale)
+    % Asteroide
     radius = N.R;
     [X_n, Y_n, Z_n] = sphere(100);
 
@@ -131,7 +125,6 @@ function scenery3_plot_coplanar(E, N)
     plot3(R_arrival(1), R_arrival(2), R_arrival(3), 'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', c_man, ...
           'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', '$\Delta V$ Capture');
 
-    % Estetica Asse Nyx
     lim_N = max(vecnorm(R_circ)) * 2.0; 
     xlim([-lim_N, lim_N]); ylim([-lim_N, lim_N]); zlim([-lim_N, lim_N]);
     xlabel('$X$ [km]', 'FontSize', 12); ylabel('$Y$ [km]', 'FontSize', 12); zlabel('$Z$ [km]', 'FontSize', 12);

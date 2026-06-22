@@ -113,7 +113,6 @@ fprintf('\n=====================================================================
 fprintf('                 STRATEGY 3: BIELLIPTIC MISSION SUMMARY                  \n');
 fprintf('=========================================================================\n');
 
-% --- 1. COMPARAZIONE ORBITALE ---
 fprintf('\n%-20s | %-15s | %-15s\n', 'Parametro', 'Orbite Iniziale', 'Orbite Finale');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-20s | %-15.2f | %-15.2f\n', 'Semi-asse (a)', a, a_f);
@@ -123,13 +122,11 @@ fprintf('%-20s | %-15.4f | %-15.4f\n', 'Nodo (OM)', OM, OM_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Pericentro (om)', om, om_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Anomalia (th)', th, th_f);
 
-% --- 2. PARAMETRI ORBITA INTERMEDIA ---
 fprintf('\n-------------------------------------------------------------------------\n');
 fprintf('%-20s | %-15.2f\n', 'Optimal eccentricity', best_e)
 fprintf('%-20s | %-15.2f\n', 'Optimal apocenter radius', best_ra)
 fprintf('-------------------------------------------------------------------------\n');
 
-% --- 3. LOG MANOVRE ---
 fprintf('\n%-30s | %-15s | %-12s\n', 'Manovra', 'Anomalia (rad)', 'DeltaV (km/s)');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Departure (BT1-PA)', 0, abs(DeltaV1BT) + abs(DeltaV2BT));
@@ -137,22 +134,18 @@ fprintf('%-30s | %-15.4f | %-12.4f\n', 'Plane Change (Optimal DV)', theta_plane_
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Arg. Pericenter Adj.', thi_omega_blt(1), abs(DeltaV_omega_blt));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Arrival (BT2-AP)', 0, abs(DeltaV3BT) + abs(DeltaV4BT));
 
-% --- 4. SUMMARY FINALE ---
 fprintf('\n=========================================================================\n');
 fprintf('TOTALE DELTA-V          : %10.4f km/s\n', DeltaV_Totale_BLT);
 fprintf('TEMPO TOTALE (TOF)      : %d d, %02d h, %02d m, %02d s\n', days, hours, minutes, seconds);
 fprintf('=========================================================================\n\n');
 
-% --- PREPARAZIONE DATI PER IL PLOT ---
 GTO.a = a; GTO.e = e; GTO.i = i; GTO.OM = OM; GTO.om = om; GTO.th = th; GTO.mu = mu;
 Park.a = a_f; Park.e = e_f; Park.i = i_f; Park.OM = OM_f; Park.om = om_f; Park.th = th_f; Park.mu = mu;
 
-% Ramo 1: punti esatti delle manovre interne
 Trans1.a = a_t; Trans1.e = e_t; Trans1.i = i; Trans1.OM = OM; Trans1.om = om; Trans1.mu = mu;
 Trans1.theta_plane = theta_plane_blt; Trans1.om_mid = om_post_plane_blt;
 Trans1.thi_omega = thi_omega_blt(1);
 
-% Ramo 2: punto di uscita dalla manovra di omega
 Trans2.a = a_t; Trans2.e = e_t; Trans2.i = i_f; Trans2.OM = OM_f; Trans2.om = om_f; Trans2.mu = mu;
 Trans2.thf_omega = thf_omega_blt(1);
 

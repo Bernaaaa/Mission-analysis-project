@@ -91,7 +91,7 @@ function [best_th_earth, best_th_nyx, best_om_tn, best_dv] = grid_search_s2(a_i,
                         -sin(om_tn_val)  cos(om_tn_val)  0;
                                 0               0         1];
 
-                R3_om_T = R3_om';               % Transpose of the rotation matrix for the argument of pericenter to transform velocity vectors from the perifocal frame of the transfer orbit to the plane of the transfer orbit
+                R3_om_T = R3_om';      
 
                 v1t = RT_Plane_to_ELIO * (R3_om_T * v1t_pf);        % Velocity vector at the initial position in the heliocentric ecliptic frame
                 v2t = RT_Plane_to_ELIO * (R3_om_T * v2t_pf);        % Velocity vector at the final position in the heliocentric ecliptic frame

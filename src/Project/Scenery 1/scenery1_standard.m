@@ -61,7 +61,6 @@ fprintf('\n=====================================================================
 fprintf('                 STRATEGY 1: STANDARD MISSION SUMMARY                  \n');
 fprintf('=========================================================================\n');
 
-% --- 1. COMPARAZIONE ORBITALE ---
 fprintf('\n%-20s | %-15s | %-15s\n', 'Parametro', 'Orbite Iniziale', 'Orbite Finale');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-20s | %-15.2f | %-15.2f\n', 'Semi-asse (a)', a, a_f);
@@ -71,22 +70,17 @@ fprintf('%-20s | %-15.4f | %-15.4f\n', 'Nodo (OM)', OM, OM_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Pericentro (om)', om, om_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Anomalia (th)', th, th_f);
 
-% --- 2. LOG MANOVRE ---
 fprintf('\n%-30s | %-15s | %-12s\n', 'Manovra', 'Anomalia (rad)', 'DeltaV (km/s)');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Plane Change (Optimal DV)', theta, abs(DeltaVP_BLT));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Arg. Pericenter Adj.', thi(2), abs(DeltaVCP));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Arrival (BT-PA)', pi, abs(DeltaV1BT) + abs(DeltaV2BT));
 
-% --- 3. SUMMARY FINALE ---
 fprintf('\n=========================================================================\n');
 fprintf('TOTALE DELTA-V          : %10.4f km/s\n', DeltaV_total);
 fprintf('TEMPO TOTALE (TOF)      : %d d, %02d h, %02d m, %02d s\n', days, hours, minutes, seconds);
 fprintf('=========================================================================\n\n');
 
-% =========================================================================
-% PREPARAZIONE DATI PER IL PLOT STANDARD (SCENARIO 1)
-% =========================================================================
 
 % 1. Coasting Iniziale
 P1.a = a; P1.e = e; P1.i = i; P1.OM = OM; P1.om = om;
@@ -115,5 +109,4 @@ P5.a = a_f; P5.e = e_f; P5.i = i_f; P5.OM = OM_f; P5.om = om_f;
 P5.th_in = pi; P5.th_out = th_f;
 P5.name = 'Final Orbit Coasting'; P5.maneuver = '$\Delta V_{2BT}$';
 
-% Lancia il plot
 scenery1_plot_standard(P1, P2, P3, P4, P5);

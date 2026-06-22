@@ -43,7 +43,7 @@ function scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth)
         end
         plot3(R_park(1,:), R_park(2,:), R_park(3,:), '-', 'Color', c_park, 'LineWidth', lw_arc, 'DisplayName', 'Park Orbit');
 
-        % 3. Iperbole di Fuga (Tracciata nel suo piano specifico)
+        % 3. Iperbole di Fuga
         th_inf_H = acos(-1 / Hyp_data.e);
         th_hyp = linspace(-th_inf_H*0.85, th_inf_H*0.85, vec_size); 
         R_hyp = zeros(3, vec_size);
@@ -57,7 +57,7 @@ function scenery3_plot_noncoplanar(Park, Hyp_peri, Hyp_opt, mu, R_earth)
         plot3(R_inj(1), R_inj(2), R_inj(3), 'o', 'MarkerEdgeColor', 'k', 'MarkerFaceColor', c_man, ...
               'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', 'Injection Point ($\Delta v$)');
 
-        % Estetica e Telecamera
+              
         lim_E = max(vecnorm(R_park)) * 1.5; 
         xlim([-lim_E, lim_E]); ylim([-lim_E, lim_E]); zlim([-lim_E, lim_E]);
         xlabel('$X$ [km]', 'FontSize', 12); ylabel('$Y$ [km]', 'FontSize', 12); zlabel('$Z$ [km]', 'FontSize', 12);

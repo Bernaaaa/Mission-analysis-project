@@ -64,7 +64,6 @@ fprintf('\n=====================================================================
 fprintf('                 STRATEGY 2: MIN TOF MISSION SUMMARY                  \n');
 fprintf('=========================================================================\n');
 
-% --- 1. COMPARAZIONE ORBITALE ---
 fprintf('\n%-20s | %-15s | %-15s\n', 'Parametro', 'Orbite Iniziale', 'Orbite Finale');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-20s | %-15.2f | %-15.2f\n', 'Semi-asse (a)', a, a_f);
@@ -74,46 +73,40 @@ fprintf('%-20s | %-15.4f | %-15.4f\n', 'Nodo (OM)', OM, OM_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Pericentro (om)', om, om_f);
 fprintf('%-20s | %-15.4f | %-15.4f\n', 'Anomalia (th)', th, th_f);
 
-% --- 2. LOG MANOVRE ---
 fprintf('\n%-30s | %-15s | %-12s\n', 'Manovra', 'Anomalia (rad)', 'DeltaV (km/s)');
 fprintf('-------------------------------------------------------------------------\n');
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Bitangent Departure (BT-AP)', pi, abs(DeltaV1BT) + abs(DeltaV2BT));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Plane Change', th_plane_change, abs(dv_plane));
 fprintf('%-30s | %-15.4f | %-12.4f\n', 'Arg. Pericenter Adj.', thi_omega_blt(2), abs(DeltaVCP));
 
-% --- 3. SUMMARY FINALE ---
 fprintf('\n=========================================================================\n');
 fprintf('TOTALE DELTA-V          : %10.4f km/s\n', DeltaV_total);
 fprintf('TEMPO TOTALE (TOF)      : %d d, %02d h, %02d m, %02d s\n', days, hours, minutes, seconds);
 fprintf('=========================================================================\n\n');
 
 
-% =========================================================================
-% PREPARAZIONE DATI PER IL PLOT STANDARD (SCENARIO 1)
-% =========================================================================
-
 % 1. Initial Orbit (P1)
 P1.a = a; P1.e = e; P1.i = i; P1.OM = OM; P1.om = om;
 P1.th_in = th; P1.th_out = pi; % Arriva al apocentro
 P1.name = 'Initial Orbit'; P1.maneuver = 'Start Position';
 
-% 2. Bitangent Transfer (P2) - DA APOCENTRO A PERICENTRO
+% 2. Bitangent Transfer (P2) AP
 ra_initial = a*(1+e);
 rp_final = a_f*(1-e_f);
-P2.a = (ra_initial + rp_final)/2;       % Semi-major axis della bitangente di trasferimento 
-P2.e = (ra_initial - rp_final)/(ra_initial + rp_final); % Eccentricità della bitangente di trasferimento
+P2.a = (ra_initial + rp_final)/2;       
+P2.e = (ra_initial - rp_final)/(ra_initial + rp_final); 
 P2.i = i; P2.OM = OM; P2.om = om;
 P2.th_in = pi; 
-P2.th_out = 0; % Arriva al pericentro dell'orbita di trasferimento (th = 0)
+P2.th_out = 0; 
 P2.name = 'Bitangent Transfer (AP)'; P2.maneuver = '$\Delta V_{1BT}$';
 
-% 3. Coasting post-Bitangente (P3)
+% 3. Coasting post-bitangent (P3)
 P3.a = a_f; P3.e = e_f; P3.i = i; P3.OM = OM; P3.om = om;
 P3.th_in = 0; 
 P3.th_out = th_plane_change;
 P3.name = 'Post-Bitangent Coasting'; P3.maneuver = '$\Delta V_{2BT}$ (Arrival)';
 
-% 4. Coasting post-Cambio Piano (P4)
+% 4. Coasting post-plane change (P4)
 P4.a = a_f; P4.e = e_f; P4.i = i_f; P4.OM = OM_f; P4.om = om_post_plane;
 P4.th_in = th_plane_change; 
 P4.th_out = thi_omega_blt(2);
@@ -125,5 +118,4 @@ P5.th_in = thf_omega_blt(2);
 P5.th_out = th_f;
 P5.name = 'Final Orbit'; P5.maneuver = '$\Delta V_{\omega}$';
 
-% --- Generazione Grafico ---
 scenery1_plot_standard(P1, P2, P3, P4, P5);

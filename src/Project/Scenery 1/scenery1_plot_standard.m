@@ -4,7 +4,6 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     mu = 398600.4418;
     R_E = 6378.137;   % [km] Raggio terrestre
 
-    % Configurazione globale LaTeX
     set(groot, 'defaulttextinterpreter', 'latex');
     set(groot, 'defaultLegendInterpreter', 'latex');
     set(groot, 'defaultAxesTickLabelInterpreter', 'latex');
@@ -15,7 +14,7 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     ax.GridAlpha = 0.15;
     ax.MinorGridAlpha = 0.05;
 
-    % --- 1. TERRA 3D CON TEXTURE ---
+    % --- TERRA 3D CON TEXTURE ---
     [X_e, Y_e, Z_e] = sphere(100);
     try 
         cdata = imread('earth_texture.png'); 
@@ -30,22 +29,21 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
         camlight('left'); lighting gouraud; material dull;
     end
      
-    % --- PALETTE COLORI (Mappata sullo Scenario Standard) ---
-    c_init  = [0.900 0.100 0.100]; % Rosso acceso (Init)
-    c_t1    = [0.100 0.750 0.100]; % Verde smeraldo (Post-Plane)
-    c_t2    = [0.000 0.750 0.900]; % Ciano brillante (Post-CP)
-    c_bt    = [1.000 0.600 0.000]; % Arancio vivido (Bitangente)
-    c_park  = [0.000 0.000 0.400]; % Blu navy scuro (Final Orbit)
+    % --- PALETTE COLORI ---
+    c_init  = [0.900 0.100 0.100]; % Rosso (Init)
+    c_t1    = [0.100 0.750 0.100]; % Verde (Post-Plane)
+    c_t2    = [0.000 0.750 0.900]; % Ciano (Post-CP)
+    c_bt    = [1.000 0.600 0.000]; % Arancio (Bitangente)
+    c_park  = [0.000 0.000 0.400]; % Blu navy (Final Orbit)
 
     lw_arc = 0.8; 
     mk_sz  = 6;    
     
     vec_size = 1000;
 
-    % Funzione inline per gestire i cavallotti sullo 0 (es. anomalia da 350° a 10°)
     get_th = @(t_i, t_f) linspace(t_i, t_f + (t_f < t_i)*2*pi, vec_size);
 
-    % --- 2. PLOT DEGLI ARCHI REALI PERCORSI ---
+    % --- PLOT DEGLI ARCHI REALI PERCORSI ---
     
     % Arco 1: Coasting su Orbita Iniziale
     th1 = get_th(P1.th_in, P1.th_in + 2*pi);
@@ -72,7 +70,7 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     R5 = zeros(3, vec_size); for j=1:vec_size, R5(:,j) = par2car(P5.a, P5.e, P5.i, P5.OM, P5.om, th5(j), mu); end
     plot3(R5(1,:), R5(2,:), R5(3,:), '-', 'Color', c_park, 'LineWidth', lw_arc, 'DisplayName', P5.name);
 
-    % --- 3. PUNTI DI MANOVRA ---
+    % --- PUNTI DI MANOVRA ---
     mkOpt = {'o', 'LineWidth', 1.5, 'MarkerSize', mk_sz};
     
     plot3(R1(1,1), R1(2,1), R1(3,1), mkOpt{:}, 'MarkerEdgeColor', c_init, 'DisplayName', P1.maneuver);
@@ -85,7 +83,7 @@ function scenery1_plot_standard(P1, P2, P3, P4, P5)
     plot3(R5(1,end), R5(2,end), R5(3,end), 'o', 'MarkerEdgeColor', 'k', ...
           'LineWidth', 1.5, 'MarkerSize', mk_sz, 'DisplayName', 'Final Target');
 
-    % --- 4. DETTAGLI EDITORIALI E ZOOM OTTIMIZZATO ---
+    % --- DETTAGLI EDITORIALI E ZOOM OTTIMIZZATO ---
     axis equal;
     
     % Calcola lo zoom unicamente sull'orbita più ampia

@@ -3,7 +3,6 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     mu = GTO.mu;
     R_E = 6378.137;   % [km] Raggio terrestre
     
-    % Configurazione globale LaTeX
     set(groot, 'defaulttextinterpreter', 'latex');
     set(groot, 'defaultLegendInterpreter', 'latex');
     set(groot, 'defaultAxesTickLabelInterpreter', 'latex');
@@ -14,7 +13,7 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     ax.GridAlpha = 0.15;
     ax.MinorGridAlpha = 0.05;
     
-    % --- 1. TERRA 3D CON TEXTURE ---
+    % --- TERRA 3D CON TEXTURE ---
     [X_e, Y_e, Z_e] = sphere(100);
     
     try 
@@ -40,29 +39,26 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     end
      
     % --- PALETTE COLORI ---
-    c_gto   = [0.900 0.100 0.100]; % Rosso acceso
-    c_bt1   = [1.000 0.600 0.000]; % Arancio vivido
-    c_t1    = [0.100 0.750 0.100]; % Verde smeraldo
-    c_mid   = [0.000 0.750 0.900]; % Ciano brillante
-    c_t2    = [0.750 0.100 0.850]; % Magenta/Viola forte
-    c_bt2   = [0.100 0.300 1.000]; % Blu elettrico
-    c_park  = [0.000 0.000 0.400]; % Blu navy scuro 
+    c_gto   = [0.900 0.100 0.100]; % Rosso 
+    c_bt1   = [1.000 0.600 0.000]; % Arancio 
+    c_t1    = [0.100 0.750 0.100]; % Verde 
+    c_mid   = [0.000 0.750 0.900]; % Ciano 
+    c_t2    = [0.750 0.100 0.850]; % Magenta/Viola 
+    c_bt2   = [0.100 0.300 1.000]; % Blu 
+    c_park  = [0.000 0.000 0.400]; % Blu navy  
 
     % Spessori
-    lw_arc = 0.8;  % Linee sottilissime
-    mk_sz  = 6;    % Dimensione marker invariata
+    lw_arc = 0.8;  % Linee s
+    mk_sz  = 6;    % Dimensione marker 
     
-    % Recupero om_mid
     if isfield(Trans1, 'om_mid'); om_mid = Trans1.om_mid; else; om_mid = Trans1.om; end
     
-    % Calcolo rami bitangenti
     rp_GTO = GTO.a * (1 - GTO.e); ra_T1 = Trans1.a * (1 + Trans1.e);
     a_bt1 = (rp_GTO + ra_T1) / 2; e_bt1 = (ra_T1 - rp_GTO) / (ra_T1 + rp_GTO);
     
     ra_T2 = Trans2.a * (1 + Trans2.e); rp_Park = Park.a * (1 - Park.e);
     a_bt2 = (rp_Park + ra_T2) / 2; e_bt2 = (ra_T2 - rp_Park) / (ra_T2 + rp_Park);
 
-    % --- 2. PLOT DEGLI ARCHI REALI PERCORSI ---
     
     % Arco 1: Coasting su GTO
     th_gto = linspace(0, 2*pi, 100);
@@ -104,7 +100,7 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     R_park_arc = zeros(3, 100); for j=1:100, R_park_arc(:,j) = par2car(Park.a, Park.e, Park.i, Park.OM, Park.om, th_park(j), mu); end
     plot3(R_park_arc(1,:), R_park_arc(2,:), R_park_arc(3,:), '-', 'Color', c_park, 'LineWidth', lw_arc, 'DisplayName', 'Park Coasting');
 
-    % --- 3. PUNTI DI MANOVRA ---
+    % --- PUNTI DI MANOVRA ---
     mkOpt = {'o', 'LineWidth', 1.5, 'MarkerSize', mk_sz};
     
     r_start = par2car(GTO.a, GTO.e, GTO.i, GTO.OM, GTO.om, GTO.th, mu);
@@ -131,7 +127,7 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     r_end = par2car(Park.a, Park.e, Park.i, Park.OM, Park.om, Park.th, mu);
     plot3(r_end(1), r_end(2), r_end(3), mkOpt{:}, 'MarkerEdgeColor', c_park, 'DisplayName', 'Final Pos');
 
-    % --- 4. DETTAGLI EDITORIALI ---
+    % --- DETTAGLI ---
     max_ap = max([GTO.a*(1+GTO.e), Trans1.a*(1+Trans1.e), Park.a*(1+Park.e), a_bt1*(1+e_bt1), a_bt2*(1+e_bt2)]);
     axis equal;
     lim = max_ap * 1.05; 
@@ -150,12 +146,12 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     lgd.Title.Interpreter = 'latex';
     lgd.Box = 'on';
 
-    % --- 5. RIQUADRO ZOOM (INSET PLOT) SULLA TERRA ---
+    % --- RIQUADRO ZOOM SULLA TERRA ---
     
     % Posizione esatta in basso a sinistra
     ax_zoom = axes('Position', [-0.05 0.25 0.4 0.4]); 
     
-    % Clona gli elementi dal grafico principale
+    % elementi dal grafico principale
     copyobj(allchild(ax), ax_zoom);
     
     % Copia l'angolo di visuale
@@ -163,10 +159,9 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     grid(ax_zoom, 'on'); 
     box(ax_zoom, 'on');
     
-    % --- IL FIX PER LA TERRA SCHIACCIATA ---
     axis(ax_zoom, 'equal'); 
     
-    % Calcola i limiti di zoom 
+    % limiti di zoom 
     lim_zoom = max(GTO.a*(1+GTO.e), Park.a*(1+Park.e)) * 1.15;
     
     % Applica i nuovi limiti
@@ -174,10 +169,9 @@ function scenery1_plot_deltaV(GTO, Park, Trans1, Trans2)
     ylim(ax_zoom, [-lim_zoom, lim_zoom]);
     zlim(ax_zoom, [-lim_zoom, lim_zoom]);
     
-    % --- IL FIX PER LA SOVRAPPOSIZIONE ---
-    set(ax_zoom, 'Color', 'w'); % Sfondo bianco solido
+    set(ax_zoom, 'Color', 'w'); 
     
-    % Estetica del riquadro
+    % Estetica 
     title(ax_zoom, '\textbf{Zoom: Low Earth Proximity}', 'Interpreter', 'latex', 'FontSize', 12);
     xticklabels(ax_zoom, {}); yticklabels(ax_zoom, {}); zticklabels(ax_zoom, {});
     ax_zoom.GridAlpha = 0.2;

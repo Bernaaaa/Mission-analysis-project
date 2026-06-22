@@ -6,7 +6,6 @@
 clear; clc; close all;
 
 %% 0. PATH SETUP
-% Ensure the common functions folder is included in the MATLAB path
 currentDir = fileparts(mfilename('fullpath'));
 funcFolder = fullfile(currentDir, '..', '..', 'lab');
 
@@ -119,7 +118,7 @@ v_inf_earth = norm(V_Trans_Depart - V_Earth_Depart); % [km/s]
 % Hyperbola semi-major axis
 a_h_earth = -mu_earth / (v_inf_earth^2);
 
-% The optimal maneuver occurs at the periapsis of the parking orbit (Oberth effect)
+% The optimal maneuver occurs at the periapsis of the parking orbit
 r_pi_earth = a_pi * (1 - e_pi); 
 v_pi_earth = sqrt(mu_earth / r_pi_earth) * sqrt(1 + e_pi); % Real velocity at periapsis
 
