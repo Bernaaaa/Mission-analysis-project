@@ -115,15 +115,15 @@ end
 L = 500;
 DV_map = DV_val;
 
-colore_main = [0.10, 0.10, 0.10]; % Antracite scuro (#1A1A1A)
+colore_main = [0.10, 0.10, 0.10]; 
 
 colori_contributi = [
-    0.45, 0.62, 0.81;  % Azzurro polvere
-    1.00, 0.62, 0.29;  % Arancione tenue
-    0.40, 0.75, 0.50;  % Verde salvia
-    0.93, 0.40, 0.36;  % Corallo
-    0.68, 0.55, 0.79;  % Glicine
-    0.93, 0.59, 0.79   % Rosa antico
+    0.45, 0.62, 0.81;  
+    1.00, 0.62, 0.29;  
+    0.40, 0.75, 0.50;  
+    0.93, 0.40, 0.36;  
+    0.68, 0.55, 0.79;  
+    0.93, 0.59, 0.79   
 ];
 
 
@@ -146,7 +146,7 @@ p8 = plot(best_ra ./ 1e+5, best_dv, ...
     'MarkerSize', 9, ...           % Dimensione
     'LineWidth', 2.0, ...           % Spessore del bordo
     'MarkerEdgeColor', [0.2 0.2 0.2], ... % Bordo grigio scuro
-    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento arancio vivido 
+    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento 
     'DisplayName', 'Optimal Point');
 
 
@@ -178,7 +178,7 @@ plot(best_e, best_dv, ...
     'MarkerSize', 9, ...           % Dimensione
     'LineWidth', 2.0, ...           % Spessore del bordo
     'MarkerEdgeColor', [0.2 0.2 0.2], ... % Bordo grigio scuro
-    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento arancio vivido 
+    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento
     'DisplayName', 'Optimal Point');
 xlabel('$e$', 'FontSize', 12);
 ylabel('$\Delta V [km/s]$', 'FontSize', 12);
@@ -202,7 +202,7 @@ plot(best_e, best_dv, ...
     'MarkerSize', 9, ...           % Dimensione
     'LineWidth', 2.0, ...           % Spessore del bordo
     'MarkerEdgeColor', [0.2 0.2 0.2], ... % Bordo grigio scuro
-    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento arancio vivido 
+    'MarkerFaceColor', [1.000 0.600 0.000], ... % Riempimento 
     'DisplayName', 'Optimal Point');
 xlabel('$e$', 'FontSize', 12);
 ylabel('$\Delta V [km/s]$', 'FontSize', 12);

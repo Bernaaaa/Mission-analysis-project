@@ -54,9 +54,7 @@ save('temp_strat3.mat', 'DV_pl_deltaV', 'DV_cp_deltaV', 'DV_BT_deltaV', 'DV_tota
 clear
 
 
-%% 4. IL MOMENTO DEL RECUPERO DATI
-% Puliamo tutto il caos generato dagli script e ricarichiamo solo il necessario
-
+%% 4. RECUPERO DATI
 
 load('temp_strat1.mat');
 load('temp_strat2.mat');
