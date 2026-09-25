@@ -2,7 +2,7 @@
 
 Design and analysis of an interplanetary mission for the orbital insertion of a spacecraft around the near-Earth asteroid **3908 Nyx (1980 PA)**, starting from a Geostationary Transfer Orbit (GTO). The mission is designed within the **patched-conics approximation**, with every maneuver optimized to minimize the total propellant cost (Δv).
 
-**Authors:** Giulia Anzivino, Francesco Bernardi, Tancredi Bertolotti
+**Authors (Group 26):** [Francesco Bernardi](https://github.com/Bernaaaa), [Tancredi Bertolotti](https://github.com/ATOMIXXPOWER), [Giulia Anzivino](https://github.com/Giuly1111)
 
 📄 Full report: [`docs/report/Report_Space_LAB_PoliMi.pdf`](docs/report/Report_Space_LAB_PoliMi.pdf)
 
