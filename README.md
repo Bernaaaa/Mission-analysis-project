@@ -155,7 +155,6 @@ Links Scenarios 1 and 2 via the **Patched Conics method**: a hyperbolic escape t
 | File | Content |
 |---|---|
 | [`docs/report/Report_Space_LAB_PoliMi.pdf`](docs/report/Report_Space_LAB_PoliMi.pdf) | Full final report: methodology, equations, results, and Appendix A with the complete orbital-parameter tables for every maneuver |
-| [`docs/data/Lab S1.pdf`](<docs/data/Lab S1.pdf>), [`Lab S2.pdf`](<docs/data/Lab S2.pdf>), [`Lab S3 part1.pdf`](<docs/data/Lab S3 part1.pdf>), [`Lab S3 part2.pdf`](<docs/data/Lab S3 part2.pdf>) | Weekly lab assignment sheets used to build the `src/lab` toolbox |
 | [`docs/data/Scenery 1 data.pdf`](<docs/data/Scenery 1 data.pdf>), [`Scenery 2-3 data.pdf`](<docs/data/Scenery%202-3%20data.pdf>) | Group-specific numerical input data (orbital parameters, target body) assigned for the project |
 
 ## Methodology Summary
