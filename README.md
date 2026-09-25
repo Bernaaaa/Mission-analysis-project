@@ -2,10 +2,7 @@
 
 Design and analysis of an interplanetary mission for the orbital insertion of a spacecraft around the near-Earth asteroid **3908 Nyx (1980 PA)**, starting from a Geostationary Transfer Orbit (GTO). The mission is designed within the **patched-conics approximation**, with every maneuver optimized to minimize the total propellant cost (Δv).
 
-Developed for the course *Laboratorio di Analisi di Missioni Spaziali* — Politecnico di Milano, School of Industrial and Information Engineering, A.Y. 2025-26.
-
-**Authors (Group 26):** Giulia Anzivino, Francesco Bernardi, Tancredi Bertolotti
-**Advisors:** Prof. M. Massari, Prof. F. Ferrari
+**Authors:** Giulia Anzivino, Francesco Bernardi, Tancredi Bertolotti
 
 📄 Full report: [`docs/report/Report_Space_LAB_PoliMi.pdf`](docs/report/Report_Space_LAB_PoliMi.pdf)
 
@@ -82,7 +79,6 @@ Generic, reusable MATLAB functions developed across the lab sessions and used th
 | [`changeOrbitalPlaneNoPrint.m`](<src/lab/L2/changeOrbitalPlaneNoPrint.m>) | Same as above, silent version (used inside optimization/grid-search loops) |
 | [`changeOrbitalPlaneDeltaT.m`](<src/lab/L2/changeOrbitalPlaneDeltaT.m>) | Plane-change maneuver selecting the node reachable in minimum time, rather than minimum Δv |
 | [`changePericenterArg.m`](<src/lab/L2/changePericenterArg.m>) | Argument-of-pericenter rotation maneuver (apsidal line rotation) at fixed a, e |
-| [`main.m`](<src/lab/L2/main.m>) / [`maint_light.m`](<src/lab/L2/maint_light.m>) | Lab driver scripts demonstrating/validating the maneuver functions above |
 
 ### L3 — Time of Flight
 | File | Description |
@@ -91,7 +87,6 @@ Generic, reusable MATLAB functions developed across the lab sessions and used th
 | [`TOF_E_NoPrint.m`](<src/lab/L3/TOF_E_NoPrint.m>) | Silent version, for use in loops/optimizations |
 | [`TOF_M.m`](<src/lab/L3/TOF_M.m>) | Time of flight via mean anomaly / Kepler's equation, with console output |
 | [`TOF_M_NoPrint.m`](<src/lab/L3/TOF_M_NoPrint.m>) | Silent version, for use in loops/optimizations |
-| [`main1.m`](<src/lab/L3/main1.m>) | Lab driver script validating the TOF functions |
 
 ---
 
@@ -111,7 +106,6 @@ Transfers the spacecraft from the initial GTO (a = 24 400 km, e = 0.7283) to the
 | [`scenery1_plot_standard.m`](<src/Project/Scenery 1/scenery1_plot_standard.m>) | 3D trajectory plot for Strategies 1 & 2 |
 | [`scenery1_plot_deltaV.m`](<src/Project/Scenery 1/scenery1_plot_deltaV.m>) | 3D trajectory plot for Strategy 3 (bi-elliptic) |
 | [`istogram_comparison_s1.m`](<src/Project/Scenery 1/istogram_comparison_s1.m>) | Bar-chart comparison of Δv/ΔT across the three strategies (Fig. 1.6) |
-| [`test.m`](<src/Project/Scenery 1/test.m>) | Scratch/validation script |
 | [`earth_texture.png`](<src/Project/Scenery 1/earth_texture.png>) | Earth texture used for the 3D plots |
 
 **Result:** Strategy 3 (bi-elliptic) selected → **Δv = 3.2254 km/s**, ΔT = 2.062 × 10⁶ s (see [Table A.1–A.3](docs/report/Report_Space_LAB_PoliMi.pdf)).
